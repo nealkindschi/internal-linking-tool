@@ -19,7 +19,7 @@ def sample_crawl_csv() -> str:
 def sample_crawl_data() -> list[dict]:
     return [
         {
-            "URL": "https://example.com/blog/solar-panel-guide-2024",
+            "Address": "https://example.com/blog/solar-panel-guide-2024",
             "Status Code": "200",
             "Link Score": "94",
             "Unique Inlinks": "45",
@@ -27,7 +27,7 @@ def sample_crawl_data() -> list[dict]:
             "GSC Clicks": "1240",
         },
         {
-            "URL": "https://example.com/blog/wind-power-basics",
+            "Address": "https://example.com/blog/wind-power-basics",
             "Status Code": "200",
             "Link Score": "87",
             "Unique Inlinks": "32",
@@ -35,7 +35,7 @@ def sample_crawl_data() -> list[dict]:
             "GSC Clicks": "890",
         },
         {
-            "URL": "https://example.com/404-page",
+            "Address": "https://example.com/404-page",
             "Status Code": "404",
             "Link Score": "0",
             "Unique Inlinks": "0",
@@ -43,7 +43,7 @@ def sample_crawl_data() -> list[dict]:
             "GSC Clicks": "0",
         },
         {
-            "URL": "https://example.com/redirected-page",
+            "Address": "https://example.com/redirected-page",
             "Status Code": "301",
             "Link Score": "0",
             "Unique Inlinks": "5",

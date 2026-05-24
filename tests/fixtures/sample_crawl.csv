@@ -1,4 +1,4 @@
-URL,Status Code,Link Score,Unique Inlinks,Outlinks,GSC Clicks
+Address,Status Code,Link Score,Unique Inlinks,Outlinks,GSC Clicks
 https://example.com/blog/solar-panel-guide-2024,200,94,45,"https://example.com/about/,https://example.com/blog/wind-power-basics,https://example.com/blog/target-page/",1240
 https://example.com/blog/wind-power-basics,200,87,32,https://example.com/about/,890
 https://example.com/blog/dead-link,404,0,0,,0

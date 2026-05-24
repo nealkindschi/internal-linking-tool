@@ -5,7 +5,13 @@ import pandas as pd
 from dataclasses import dataclass, field
 
 
-REQUIRED_COLUMNS = ["URL", "Status Code", "Link Score"]
+def _safe_str(value):
+    if pd.isna(value):
+        return "0"
+    return str(value).strip() or "0"
+
+
+REQUIRED_COLUMNS = ["Address", "Status Code", "Link Score"]
 
 
 @dataclass
@@ -32,7 +38,7 @@ def parse_outlinks(raw):
 
 
 def parse_crawl_csv(filepath):
-    df = pd.read_csv(filepath, dtype=str)
+    df = pd.read_csv(filepath, dtype=str, encoding="utf-8-sig")
 
     missing = [c for c in REQUIRED_COLUMNS if c not in df.columns]
     if missing:
@@ -41,16 +47,16 @@ def parse_crawl_csv(filepath):
     pages = []
     for _, row in df.iterrows():
         try:
-            status_code = int(float(row.get("Status Code", 0)))
-            link_authority = int(float(row.get("Link Score", 0)))
+            status_code = int(float(_safe_str(row.get("Status Code", "0"))))
+            link_authority = int(float(_safe_str(row.get("Link Score", "0"))))
         except (ValueError, TypeError):
             continue
 
         page = CrawlPage(
-            url=str(row["URL"]),
+            url=str(row["Address"]),
             status_code=status_code,
             link_authority=link_authority,
-            unique_inlinks=int(float(row.get("Unique Inlinks", 0))),
+            unique_inlinks=_safe_int(row.get("Unique Inlinks", 0)),
             outlinks=parse_outlinks(row.get("Outlinks", "")),
             gsc_clicks=_safe_int(row.get("GSC Clicks", 0)),
         )
@@ -61,6 +67,8 @@ def parse_crawl_csv(filepath):
 
 def _safe_int(value):
     try:
+        if pd.isna(value):
+            return 0
         return int(float(value))
     except (ValueError, TypeError):
         return 0

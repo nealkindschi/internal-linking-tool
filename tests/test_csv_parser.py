@@ -30,13 +30,13 @@ class TestParseCrawlCsv:
 
     def test_handles_empty_csv(self, tmp_path):
         csv_path = tmp_path / "empty.csv"
-        csv_path.write_text("URL,Status Code,Link Score\n")
+        csv_path.write_text("Address,Status Code,Link Score\n")
         pages = parse_crawl_csv(str(csv_path))
         assert pages == []
 
     def test_missing_columns_raises_error(self, tmp_path):
         csv_path = tmp_path / "bad.csv"
-        csv_path.write_text("URL,Status\nhttps://example.com,200\n")
+        csv_path.write_text("Address,Status\nhttps://example.com,200\n")
         with pytest.raises(ValueError, match="Missing required columns"):
             parse_crawl_csv(str(csv_path))
 

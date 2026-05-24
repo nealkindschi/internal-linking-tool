@@ -22,8 +22,13 @@ class TestSfCliManager:
     def test_list_crawls_parses_output(self, mock_run):
         mock_result = MagicMock()
         mock_result.stdout = (
-            "ID: abc123  Name: example.com  Date: 2026-05-20  URLs: 12440\n"
-            "ID: def456  Name: example.com  Date: 2026-05-15  URLs: 11890\n")
+            "╔══════╤══════╤══════╤══════╤══════╤════════╤══════╤══════╗\n"
+            "║ Database Id │ Name │ URL │ Mode │ URLs │ % Complete │ Modified │ Version ║\n"
+            "╠══════╪══════╪══════╪══════╪══════╪════════╪══════╪══════╣\n"
+            "║ abc123 │ example.com │ https://example.com │ Spider │ 12440 │ 100 │ May 20, 2026, 10:00:00 AM │ 24.0 ║\n"
+            "╟──────┼──────┼──────┼──────┼──────┼────────┼──────┼──────╢\n"
+            "║ def456 │ example.com │ https://example.com │ Spider │ 11890 │ 100 │ May 15, 2026, 10:00:00 AM │ 24.0 ║\n"
+            "╚══════╧══════╧══════╧══════╧══════╧════════╧══════╧══════╝\n")
         mock_result.returncode = 0
         mock_run.return_value = mock_result
         manager = SfCliManager(cli_path="/fake/sf")

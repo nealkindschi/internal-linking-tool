@@ -5,7 +5,7 @@ from dataclasses import dataclass
 from typing import Optional
 
 from internal_linking_tool.csv_parser import parse_crawl_csv
-from internal_linking_tool.gsc_client import GscClient, fetch_queries_for_url, build_impression_weighted_keywords
+from internal_linking_tool.gsc_client import GscClient, GscQueryResult, fetch_queries_for_url, build_impression_weighted_keywords
 from internal_linking_tool.page_fetcher import PageFetcher
 from internal_linking_tool.match_engine import MatchEngine
 from internal_linking_tool.anchor_engine import AnchorEngine
@@ -69,6 +69,16 @@ class Analyzer:
             queries = []
             state.detail = f"GSC fetch failed (continuing without): {e}"
 
+        if not queries:
+            try:
+                target_page = await self.page_fetcher.fetch(self.target_url)
+                if target_page.success:
+                    keywords = _extract_keywords_from_text(target_page.text)
+                    queries = [GscQueryResult(query=kw, page=self.target_url, impressions=1) for kw in keywords]
+                    state.detail = f"GSC unavailable, using {len(queries)} on-page keywords instead"
+            except Exception:
+                pass
+
         state.set_phase("csv_parse", "Parsing crawl data...", 30)
         if stream_id:
             await self.emit_progress(stream_id, state)
@@ -107,6 +117,21 @@ class Analyzer:
                 "per_page": 100,
             },
         }
+
+
+def _extract_keywords_from_text(text):
+    if not text:
+        return []
+    import re
+    from collections import Counter
+    words = re.findall(r'\b[a-zA-Z]{4,}\b', text.lower())
+    stopwords = {'this', 'that', 'with', 'from', 'they', 'will', 'have', 'been', 'were', 'their', 'about', 'which', 'there', 'would', 'could', 'should', 'these', 'those', 'because', 'through'}
+    filtered = [w for w in words if w not in stopwords]
+    bigrams = [' '.join(filtered[i:i+2]) for i in range(len(filtered)-1)]
+    all_terms = filtered + bigrams
+    counts = Counter(all_terms)
+    top = [kw for kw, _ in counts.most_common(30)]
+    return top[:20]
 
 
 async def run_analysis(target_url, csv_path, stream_id=None):
