@@ -59,14 +59,16 @@ class MatchEngine:
         self.target_url = target_url
         self.target_path = _normalize_path(urlparse(target_url).path)
 
-    def find_opportunities(self, pages, fetched_pages, keywords):
+    def find_opportunities(self, pages, fetched_pages, keywords, outlink_map=None):
         if not keywords:
             return []
+        outlink_map = outlink_map or {}
         matches = []
         for page in pages:
             if not page.is_eligible:
                 continue
-            if is_linked(self.target_path, page.outlinks):
+            outlinks = outlink_map.get(page.url, page.outlinks)
+            if is_linked(self.target_path, outlinks):
                 continue
             fetched = fetched_pages.get(page.url)
             if not fetched or not fetched.success:

@@ -112,11 +112,20 @@ class SfCliManager:
             "--export-format", "csv",
             "--overwrite",
         ], timeout=600)
+        self._run([
+            "--load-crawl", crawl_id,
+            "--bulk-export", "Links:All Outlinks",
+            "--output-folder", export_dir,
+            "--export-format", "csv",
+            "--overwrite",
+        ], timeout=600)
         export_path = Path(export_dir)
-        csv_files = list(export_path.glob("**/internal_all.csv"))
-        if csv_files:
-            return str(csv_files[0])
-        all_csvs = list(export_path.glob("**/*.csv"))
-        if all_csvs:
-            return str(all_csvs[0])
-        raise RuntimeError(f"No CSV file found in export directory: {export_dir}")
+        internal = list(export_path.glob("**/internal_all.csv"))
+        outlinks = list(export_path.glob("**/all_outlinks.csv"))
+        if not internal:
+            internal = list(export_path.glob("**/*.csv"))
+        return {
+            "internal_csv": str(internal[0]) if internal else None,
+            "outlinks_csv": str(outlinks[0]) if outlinks else None,
+            "export_dir": export_dir,
+        }

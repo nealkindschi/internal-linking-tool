@@ -23,10 +23,9 @@ class TestParseCrawlCsv:
     def test_filters_non_200_pages(self, sample_crawl_csv):
         pages = parse_crawl_csv(sample_crawl_csv)
         eligible = [p for p in pages if p.is_eligible]
-        assert len(eligible) == 2  # 404, 301, and canonicalized (200/0) excluded
+        assert len(eligible) == 3  # 200-status pages (404 and 301 excluded)
         for p in eligible:
             assert p.status_code == 200
-            assert p.link_authority > 0
 
     def test_handles_empty_csv(self, tmp_path):
         csv_path = tmp_path / "empty.csv"

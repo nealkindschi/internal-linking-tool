@@ -25,7 +25,7 @@ class CrawlPage:
 
     @property
     def is_eligible(self) -> bool:
-        return self.status_code == 200 and self.link_authority > 0
+        return self.status_code == 200
 
 
 def parse_outlinks(raw):

@@ -1,181 +1,127 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Internal Linking Tool</title>
-    <link rel="stylesheet" href="/static/styles.css">
-    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.5/dist/cdn.min.js" defer></script>
-    <script src="/static/app.js"></script>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Internal Linking Tool</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,sans-serif;background:#f9fafb;min-height:100vh}
+.mx{max-width:42rem;margin:0 auto;padding:2rem}
+h1{font-size:1.5rem;font-weight:700;color:#111;margin-bottom:.25rem}
+.st{font-size:.875rem;color:#666;margin-bottom:2rem}
+.card{background:#fff;border-radius:.5rem;border:1px solid #e5e7eb;padding:2rem;box-shadow:0 1px 2px rgba(0,0,0,.05)}
+label{display:block;font-size:.875rem;font-weight:500;color:#374151;margin-bottom:.5rem}
+input,select{width:100%;padding:.625rem .75rem;border:1px solid #d1d5db;border-radius:.5rem;font-size:.875rem;margin-bottom:1rem}
+input:focus,select:focus{outline:none;border-color:#2563eb;box-shadow:0 0 0 2px rgba(37,99,235,.2)}
+button{padding:.625rem 1.5rem;background:#2563eb;color:#fff;border:none;border-radius:.5rem;font-size:.875rem;font-weight:500;cursor:pointer}
+button:hover{background:#1d4ed8} button:disabled{opacity:.5;cursor:not-allowed}
+.err{background:#fee2e2;color:#991b1b;padding:.75rem;border-radius:.5rem;font-size:.875rem;margin-bottom:1rem;display:none}
+.prog{height:.5rem;background:#e5e7eb;border-radius:9999px;overflow:hidden;margin:1rem 0;display:none}
+.prog-bar{height:100%;background:#2563eb;border-radius:9999px;transition:width .5s}
+.prog-txt{text-align:center;font-size:.8125rem;color:#666;margin-bottom:1rem;display:none}
+.res{display:none}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:.75rem;margin-bottom:1rem}
+.stat{background:#fff;border-radius:.5rem;border:1px solid #e5e7eb;padding:1rem;text-align:center}
+.sl{font-size:.625rem;text-transform:uppercase;color:#666}
+.sv{font-size:1.5rem;font-weight:700}
+table{width:100%;border-collapse:collapse;font-size:.8125rem;background:#fff;border-radius:.5rem;border:1px solid #e5e7eb}
+th{background:#f9fafb;text-align:left;padding:.625rem .75rem;font-weight:500;color:#374151;border-bottom:2px solid #e5e7eb}
+td{padding:.625rem .75rem;border-bottom:1px solid #f3f4f6}
+.badge{padding:.125rem .5rem;border-radius:9999px;font-size:.6875rem;font-weight:700}
+.b-hi{background:#dcfce7;color:#166534}.b-md{background:#ffedd5;color:#9a3412}.b-lo{background:#fee2e2;color:#991b1b}
+tr:hover{background:#f9fafb;cursor:pointer}
+.ex{display:none;background:#f9fafb}
+.ex td{padding:0 1.5rem .75rem}
+.chip{display:inline-block;padding:.25rem .5rem;border-radius:.25rem;font-size:.6875rem;margin:.125rem}
+.cp{background:#dbeafe;color:#1e40af}.cs{background:#f3f4f6;color:#374151}
+.spin{display:inline-block;width:1rem;height:1rem;border:2px solid #e5e7eb;border-top-color:#2563eb;border-radius:50%;animation:s .6s linear infinite;vertical-align:middle;margin-right:.5rem}
+@keyframes s{to{transform:rotate(360deg)}}
+</style>
 </head>
-<body x-data="app()" class="bg-gray-50 min-h-screen">
-    <div class="max-w-6xl mx-auto p-6" x-show="true">
+<body>
+<div class="mx">
 
-        <header class="mb-8 flex items-center justify-between">
-            <div>
-                <h1 class="text-2xl font-bold text-gray-900">Internal Linking Tool</h1>
-                <p class="text-gray-500 text-sm">Find unlinked keyword mentions across your site</p>
-            </div>
-            <div class="flex items-center gap-3">
-                <span x-show="gscConnected" class="text-xs text-green-700 bg-green-100 px-3 py-1 rounded-full" style="display:none">GSC Connected</span>
-                <button @click="connectGsc()" class="text-xs text-blue-600 bg-blue-100 px-3 py-1 rounded-full hover:bg-blue-200">Connect GSC</button>
-            </div>
-        </header>
+<h1>Internal Linking Tool</h1>
+<p class="st">Find unlinked keyword mentions across your site</p>
 
-        <!-- Step 1: Enter URL -->
-        <div x-show="step === 'input'" style="display:block" class="max-w-xl mx-auto mt-20">
-            <div class="bg-white rounded-lg shadow-sm border p-8">
-                <h2 class="text-lg font-semibold mb-2">Find Internal Linking Opportunities</h2>
-                <p class="text-gray-500 text-sm mb-6">Enter the page you want to build links to.</p>
-                <div class="flex gap-3">
-                    <input x-model="targetUrl" type="url" placeholder="https://example.com/blog/target-page/"
-                           class="flex-1 border rounded-lg px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
-                           @keydown.enter="goToCrawlSelect()">
-                    <button @click="goToCrawlSelect()" :disabled="!targetUrl || loading"
-                            class="bg-blue-600 text-white px-6 py-3 rounded-lg text-sm font-medium hover:bg-blue-700 disabled:opacity-50 transition-colors">
-                        Next
-                    </button>
-                </div>
-            </div>
-        </div>
+<div class="card">
+  <label for="tu">Target URL</label>
+  <input type="url" id="tu" placeholder="https://aioutlooks.com/blog/some-page/">
+  <label for="cs">Screaming Frog Crawl</label>
+  <select id="cs"><option value="">Loading...</option></select>
+  <div style="display:flex;gap:.5rem;align-items:center">
+    <button id="ab" onclick="go()" disabled>Analyze</button>
+    <span id="sp" style="display:none"><span class="spin"></span> Working...</span>
+  </div>
+</div>
 
-        <!-- Step 2: Select Crawl -->
-        <div x-show="step === 'crawl_select'" class="max-w-2xl mx-auto mt-10">
-            <div class="bg-white rounded-lg shadow-sm border p-6">
-                <h2 class="text-lg font-semibold mb-2">Select Crawl Data</h2>
-                <p class="text-gray-500 text-sm mb-6">Choose a saved Screaming Frog crawl or start a new one for <strong x-text="targetUrl"></strong>.</p>
+<div id="er" class="err"></div>
+<div id="pb" class="prog"><div class="prog-bar" style="width:0%"></div></div>
+<div id="pt" class="prog-txt"></div>
 
-                <div x-show="loadingCrawls" class="text-center py-8">
-                    <p class="text-sm text-gray-400">Loading crawls...</p>
-                </div>
+<div id="rd" class="res">
+  <div class="stats">
+    <div class="stat"><div class="sl">Pages</div><div class="sv" id="spg" style="color:#166534">0</div></div>
+    <div class="stat"><div class="sl">Opps</div><div class="sv" id="sop" style="color:#9a3412">0</div></div>
+    <div class="stat"><div class="sl">Scanned</div><div class="sv" id="ssc" style="color:#1d4ed8">0</div></div>
+    <div class="stat"><div class="sl">Keywords</div><div class="sv" id="skw" style="color:#991b1b">0</div></div>
+  </div>
+  <table><thead><tr><th>Page to Link From</th><th style="width:70px;text-align:center">Auth</th><th style="width:70px;text-align:center">Clicks</th><th style="width:50px;text-align:center">#</th><th>Best Anchor</th></tr></thead>
+  <tbody id="tb"></tbody></table>
+</div>
 
-                <div x-show="!loadingCrawls">
-                    <div x-show="crawls.length === 0" class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4">
-                        <p class="text-sm text-yellow-800">No saved crawls found. <button @click="startNewCrawl()" class="text-blue-600 hover:underline">Start a new crawl</button></p>
-                    </div>
+</div>
 
-                    <div x-show="crawls.length > 0" class="space-y-2 mb-4">
-                        <template x-for="crawl in crawls" :key="crawl.id">
-                            <div @click="selectedCrawlId = crawl.id"
-                                 class="border rounded-lg p-4 cursor-pointer transition-colors"
-                                 :class="selectedCrawlId === crawl.id ? 'border-blue-500 bg-blue-50' : 'hover:bg-gray-50'">
-                                <div class="flex justify-between items-center">
-                                    <div>
-                                        <div class="font-medium text-sm" x-text="crawl.name"></div>
-                                        <div class="text-xs text-gray-400" x-text="crawl.date + '  ·  ' + crawl.url_count + ' URLs'"></div>
-                                    </div>
-                                    <div x-show="selectedCrawlId === crawl.id" class="text-blue-600 text-lg">&#10003;</div>
-                                </div>
-                            </div>
-                        </template>
-                    </div>
+<script>
+var aid=null,es=null;
+fetch('/api/crawls').then(function(r){return r.json()}).then(function(c){
+  var s=document.getElementById('cs');s.innerHTML='';
+  c.forEach(function(x){s.innerHTML+='<option value="'+x.id+'">'+x.name+' ('+x.url_count+' URLs, '+x.date+')</option>'});
+  if(c.length)s.value=c[0].id;
+  document.getElementById('ab').disabled=false;
+}).catch(function(e){document.getElementById('cs').innerHTML='<option value="">Error loading. Is Screaming Frog closed?</option>';showerr(e.message)});
 
-                    <div class="flex gap-3 items-center justify-between pt-4 border-t">
-                        <div class="flex gap-3">
-                            <button @click="step='input'" class="text-sm text-gray-500 hover:text-gray-700 px-4 py-2">Back</button>
-                            <button @click="startNewCrawl()" class="text-sm text-blue-600 bg-blue-50 px-4 py-2 rounded-lg hover:bg-blue-100">+ Start New Crawl</button>
-                        </div>
-                        <button @click="startAnalysis()" :disabled="!selectedCrawlId"
-                                class="bg-blue-600 text-white px-6 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 disabled:opacity-50 transition-colors">
-                            Analyze
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Step 3: Progress -->
-        <div x-show="step === 'progress'" class="max-w-md mx-auto mt-20">
-            <div class="bg-white rounded-lg shadow-sm border p-8">
-                <h2 class="text-lg font-semibold mb-4">Analyzing...</h2>
-                <div class="space-y-3 mb-6">
-                    <div class="flex justify-between text-sm" :class="{'text-green-600': progress.percent >= 10, 'text-gray-400': progress.percent < 10}">
-                        <span>GSC query data</span><span x-text="progress.percent >= 10 ? 'Done' : 'Pending'"></span>
-                    </div>
-                    <div class="flex justify-between text-sm" :class="{'text-green-600': progress.percent >= 30, 'text-gray-400': progress.percent < 30}">
-                        <span>Crawl data parsed</span><span x-text="progress.percent >= 30 ? 'Done' : 'Pending'"></span>
-                    </div>
-                    <div class="flex justify-between text-sm" :class="{'text-green-600': progress.percent >= 40, 'text-gray-400': progress.percent < 40}">
-                        <span>Scanning pages</span><span x-text="progress.percent >= 40 ? progress.detail : 'Pending'"></span>
-                    </div>
-                    <div class="flex justify-between text-sm" :class="{'text-green-600': progress.percent >= 80, 'text-gray-400': progress.percent < 80}">
-                        <span>Matching keywords</span><span x-text="progress.percent >= 80 ? 'Done' : 'Pending'"></span>
-                    </div>
-                </div>
-                <div class="bg-gray-200 rounded-full h-2 overflow-hidden">
-                    <div class="bg-blue-600 h-full rounded-full transition-all duration-500" :style="'width: ' + progress.percent + '%'"></div>
-                </div>
-                <p class="text-center text-xs text-gray-400 mt-3" x-text="progress.percent + '% complete'"></p>
-                <button @click="cancelAnalysis()" class="mt-4 w-full text-sm text-red-500 hover:text-red-700">Cancel</button>
-            </div>
-        </div>
-
-        <!-- Step 4: Results Dashboard -->
-        <div x-show="step === 'results'">
-            <div class="grid grid-cols-4 gap-4 mb-6">
-                <div class="bg-white rounded-lg border p-4"><div class="text-xs text-gray-500 uppercase">Source Pages</div><div class="text-2xl font-bold text-green-700" x-text="meta.total_opportunities || 0"></div></div>
-                <div class="bg-white rounded-lg border p-4"><div class="text-xs text-gray-500 uppercase">Opportunities</div><div class="text-2xl font-bold text-orange-700" x-text="meta.total_anchor_options || 0"></div></div>
-                <div class="bg-white rounded-lg border p-4"><div class="text-xs text-gray-500 uppercase">Pages Scanned</div><div class="text-2xl font-bold text-blue-700" x-text="meta.pages_scanned || 0"></div></div>
-                <div class="bg-white rounded-lg border p-4"><div class="text-xs text-gray-500 uppercase">Keywords</div><div class="text-2xl font-bold text-red-700" x-text="meta.gsc_keywords || 0"></div></div>
-            </div>
-
-            <div class="flex gap-3 mb-4 items-center flex-wrap">
-                <input x-model="filterQuery" type="text" placeholder="Filter by keyword or URL..." class="border rounded-lg px-3 py-2 text-sm flex-1 min-w-200 outline-none">
-                <select x-model="minAuthority" class="border rounded-lg px-3 py-2 text-sm outline-none">
-                    <option value="0">Min Authority: Any</option><option value="60">Min Authority: 60</option><option value="80">Min Authority: 80</option>
-                </select>
-                <select x-model="sortBy" class="border rounded-lg px-3 py-2 text-sm outline-none">
-                    <option value="priority">Sort: Priority</option><option value="clicks">Sort: Clicks</option><option value="matches">Sort: Matches</option>
-                </select>
-                <button @click="exportCSV()" class="bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-green-700">Export CSV</button>
-                <button @click="resetAll()" class="text-sm text-gray-500 px-4 py-2 hover:text-gray-700">New Analysis</button>
-            </div>
-
-            <div class="bg-white rounded-lg border overflow-hidden">
-                <table class="w-full text-sm">
-                    <thead><tr class="bg-gray-50 text-left">
-                        <th class="px-4 py-3">Page to Add Link To</th><th class="px-4 py-3 text-center w-24">Authority</th><th class="px-4 py-3 text-center w-28">Clicks (90d)</th><th class="px-4 py-3 text-center w-20">Anchors</th><th class="px-4 py-3">Best Anchor Text</th>
-                    </tr></thead>
-                    <tbody>
-                        <template x-for="opp in filteredOpportunities()" :key="opp.source_url">
-                            <tr class="border-t hover:bg-gray-50 cursor-pointer" @click="opp._expanded = !opp._expanded">
-                                <td class="px-4 py-3"><a :href="opp.source_url" target="_blank" class="text-blue-600 hover:underline flex items-center gap-1" @click.stop><span x-text="opp.source_url.split('/').slice(-2).join('/') || opp.source_url"></span><span class="text-gray-400 text-xs">&nearr;</span></a></td>
-                                <td class="px-4 py-3 text-center"><span class="px-2 py-0_5 rounded-full text-xs font-bold" :class="{'bg-green-100 text-green-800': opp.link_authority >= 80, 'bg-orange-100 text-orange-800': opp.link_authority >= 50 && opp.link_authority < 80, 'bg-red-100 text-red-800': opp.link_authority < 50}" x-text="opp.link_authority"></span></td>
-                                <td class="px-4 py-3 text-center" x-text="opp.organic_clicks_90d || 0"></td>
-                                <td class="px-4 py-3 text-center"><span class="bg-blue-100 text-blue-700 px-2 py-0_5 rounded-full text-xs font-bold" x-text="opp.match_count"></span></td>
-                                <td class="px-4 py-3 text-blue-600" x-text="opp.best_anchor"></td>
-                            </tr>
-                            <tr x-show="opp._expanded" class="bg-gray-50 border-t">
-                                <td colspan="5" class="px-4 py-3">
-                                    <div class="text-xs text-gray-500 mb-2">Anchor options on this page:</div>
-                                    <div class="space-y-2">
-                                        <template x-for="match in opp.matches" :key="match.keyword">
-                                            <div class="flex items-center gap-3 bg-white rounded border p-2">
-                                                <span class="text-xs font-medium min-w-160 text-center px-2 py-1 rounded" :class="match.impression_share >= 0.3 ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-700'">
-                                                    <span x-text="match.anchor_text || match.keyword"></span>
-                                                    <span class="text-gray-400 font-normal ml-1" x-text="'(' + Math.round((match.impression_share || 0) * 100) + '%)'"></span>
-                                                </span>
-                                                <span class="text-xs text-gray-600 flex-1" x-text="match.context || ''"></span>
-                                            </div>
-                                        </template>
-                                    </div>
-                                </td>
-                            </tr>
-                        </template>
-                    </tbody>
-                </table>
-                <div x-show="filteredOpportunities().length === 0" class="text-center py-12 text-gray-400">No opportunities match your filters.</div>
-            </div>
-        </div>
-
-        <!-- Error State -->
-        <div x-show="step === 'error'" class="max-w-md mx-auto mt-20">
-            <div class="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
-                <p class="text-red-800 font-medium mb-2">Analysis Failed</p>
-                <p class="text-red-600 text-sm" x-text="errorMessage"></p>
-                <button @click="resetAll()" class="mt-4 text-sm text-blue-600 hover:underline">Try again</button>
-            </div>
-        </div>
-    </div>
+function go(){
+  var u=document.getElementById('tu').value,c=document.getElementById('cs').value;
+  if(!u||!c)return;
+  document.getElementById('sp').style.display='inline';document.getElementById('ab').disabled=true;
+  document.getElementById('er').style.display='none';document.getElementById('rd').style.display='none';
+  document.getElementById('pb').style.display='block';document.getElementById('pt').style.display='block';
+  fetch('/api/analyze',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({target_url:u,crawl_id:c})})
+  .then(function(r){return r.json()}).then(function(d){
+    aid=d.analysis_id;es=new EventSource('/api/analyze/'+aid+'/stream');
+    es.addEventListener('progress',function(e){var p=JSON.parse(e.data);document.querySelector('.prog-bar').style.width=p.percent+'%';document.getElementById('pt').textContent=p.detail||(p.percent+'%');if(p.phase==='complete')lr();});
+    es.addEventListener('error',function(e){showerr(JSON.parse(e.data).detail||'Failed')});
+    es.onerror=function(){setTimeout(lr,2000)};
+  }).catch(function(e){showerr(e.message)});
+}
+function lr(){
+  fetch('/api/analyze/'+aid+'/results').then(function(r){return r.json()}).then(function(d){
+    if(d.error){showerr(d.error);return}
+    var o=d.opportunities||[],m=d.meta||{};
+    document.getElementById('pb').style.display='none';document.getElementById('pt').style.display='none';
+    document.getElementById('sp').style.display='none';document.getElementById('rd').style.display='block';
+    document.getElementById('spg').textContent=m.total_opportunities||0;
+    document.getElementById('sop').textContent=m.total_anchor_options||0;
+    document.getElementById('ssc').textContent=m.pages_scanned||0;
+    document.getElementById('skw').textContent=m.gsc_keywords||0;
+    var tb=document.getElementById('tb');tb.innerHTML='';
+    o.forEach(function(x){
+      var ac=x.link_authority>=80?'b-hi':x.link_authority>=50?'b-md':'b-lo';
+      var su=x.source_url.split('/').slice(-2).join('/')||x.source_url;
+      tb.innerHTML+='<tr onclick="tog(\''+x.source_url.replace(/[^a-zA-Z0-9]/g,'_')+'\')">'+
+        '<td><a href="'+x.source_url+'" target="_blank" style="color:#2563eb;text-decoration:none" onclick="event.stopPropagation()">'+su+' ↗</a></td>'+
+        '<td style="text-align:center"><span class="badge '+ac+'">'+(x.link_authority||0)+'</span></td>'+
+        '<td style="text-align:center">'+(x.organic_clicks_90d||0)+'</td>'+
+        '<td style="text-align:center"><span style="background:#dbeafe;color:#1e40af;padding:2px 6px;border-radius:9999px;font-size:.6875rem;font-weight:700">'+(x.match_count||0)+'</span></td>'+
+        '<td style="color:#2563eb">'+(x.best_anchor||'')+'</td></tr>';
+      var ac2=(x.matches||[]).map(function(m){return '<span class="chip '+(m.impression_share>=0.3?'cp':'cs')+'">'+(m.anchor_text||m.keyword)+' ('+Math.round((m.impression_share||0)*100)+'%)</span>'}).join(' ');
+      tb.innerHTML+='<tr class="ex" id="ex-'+x.source_url.replace(/[^a-zA-Z0-9]/g,'_')+'"><td colspan="5">'+ac2+'<div style="font-size:.6875rem;color:#9ca3af;margin-top:.25rem;font-style:italic">'+(((x.matches||[])[0]||{}).context||'')+'</div></td></tr>';
+    });
+  }).catch(function(e){showerr(e.message)});
+}
+function tog(id){var r=document.getElementById('ex-'+id);if(r)r.style.display=r.style.display==='table-row'?'none':'table-row'}
+function showerr(m){document.getElementById('sp').style.display='none';document.getElementById('pb').style.display='none';document.getElementById('pt').style.display='none';document.getElementById('ab').disabled=false;document.getElementById('er').textContent=m;document.getElementById('er').style.display='block';if(es)es.close()}
+</script>
 </body>
 </html>

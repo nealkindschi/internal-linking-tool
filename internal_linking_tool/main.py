@@ -153,8 +153,13 @@ def create_app():
 async def _run_background_analysis(analysis_id, request, app):
     try:
         sf = app.state.sf_manager
-        csv_path = sf.export_crawl_data(request.crawl_id or "latest")
-        result = await run_analysis(target_url=request.target_url, csv_path=csv_path, stream_id=analysis_id)
+        export = sf.export_crawl_data(request.crawl_id or "latest")
+        result = await run_analysis(
+            target_url=request.target_url,
+            csv_path=export["internal_csv"],
+            outlinks_csv=export.get("outlinks_csv"),
+            stream_id=analysis_id,
+        )
         app.state.analyses[analysis_id] = result
     except Exception as e:
         app.state.analyses[analysis_id] = {"error": str(e)}
