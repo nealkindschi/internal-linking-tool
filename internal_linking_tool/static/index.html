@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Internal Linking Tool</title>
+    <link rel="stylesheet" href="/static/styles.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.5/dist/cdn.min.js"></script>
+    <script defer src="/static/app.js"></script>
+</head>
+<body x-data="app()" class="bg-gray-50 min-h-screen">
+    <div class="max-w-6xl mx-auto p-6">
+
+        <header class="mb-8">
+            <h1 class="text-2xl font-bold text-gray-900">Internal Linking Tool</h1>
+            <p class="text-gray-500 text-sm">Find unlinked keyword mentions across your site</p>
+        </header>
+
+        <div x-show="step === 'input'" class="max-w-xl mx-auto mt-20">
+            <div class="bg-white rounded-lg shadow-sm border p-8">
+                <h2 class="text-lg font-semibold mb-2">Find Internal Linking Opportunities</h2>
+                <p class="text-gray-500 text-sm mb-6">Enter the page you want to build links to.</p>
+                <div class="flex gap-3">
+                    <input x-model="targetUrl" type="url" placeholder="https://example.com/blog/target-page/"
+                           class="flex-1 border rounded-lg px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                           @keydown.enter="startAnalysis()">
+                    <button @click="startAnalysis()" :disabled="!targetUrl || loading"
+                            class="bg-blue-600 text-white px-6 py-3 rounded-lg text-sm font-medium hover:bg-blue-700 disabled:opacity-50 transition-colors">
+                        Analyze
+                    </button>
+                </div>
+                <p class="text-xs text-gray-400 mt-4">Requires: Screaming Frog + Google Search Console</p>
+            </div>
+        </div>
+
+        <div x-show="step === 'progress'" class="max-w-md mx-auto mt-20">
+            <div class="bg-white rounded-lg shadow-sm border p-8">
+                <h2 class="text-lg font-semibold mb-4">Analyzing...</h2>
+                <div class="space-y-3 mb-6">
+                    <div class="flex justify-between text-sm" :class="{'text-green-600': progress.percent >= 10, 'text-gray-400': progress.percent < 10}">
+                        <span>GSC query data</span><span x-text="progress.percent >= 10 ? 'Done' : 'Pending'"></span>
+                    </div>
+                    <div class="flex justify-between text-sm" :class="{'text-green-600': progress.percent >= 30, 'text-gray-400': progress.percent < 30}">
+                        <span>Crawl data parsed</span><span x-text="progress.percent >= 30 ? 'Done' : 'Pending'"></span>
+                    </div>
+                    <div class="flex justify-between text-sm" :class="{'text-green-600': progress.percent >= 40, 'text-gray-400': progress.percent < 40}">
+                        <span>Scanning pages</span><span x-text="progress.percent >= 40 ? progress.detail : 'Pending'"></span>
+                    </div>
+                    <div class="flex justify-between text-sm" :class="{'text-green-600': progress.percent >= 80, 'text-gray-400': progress.percent < 80}">
+                        <span>Matching keywords</span><span x-text="progress.percent >= 80 ? 'Done' : 'Pending'"></span>
+                    </div>
+                </div>
+                <div class="bg-gray-200 rounded-full h-2 overflow-hidden">
+                    <div class="bg-blue-600 h-full rounded-full transition-all duration-500" :style="'width: ' + progress.percent + '%'"></div>
+                </div>
+                <p class="text-center text-xs text-gray-400 mt-3" x-text="progress.percent + '% complete'"></p>
+                <button @click="cancelAnalysis()" class="mt-4 w-full text-sm text-red-500 hover:text-red-700">Cancel</button>
+            </div>
+        </div>
+
+        <div x-show="step === 'results'">
+            <div class="grid grid-cols-4 gap-4 mb-6">
+                <div class="bg-white rounded-lg border p-4"><div class="text-xs text-gray-500 uppercase">Source Pages</div><div class="text-2xl font-bold text-green-700" x-text="meta.total_opportunities || 0"></div></div>
+                <div class="bg-white rounded-lg border p-4"><div class="text-xs text-gray-500 uppercase">Opportunities</div><div class="text-2xl font-bold text-orange-700" x-text="meta.total_anchor_options || 0"></div></div>
+                <div class="bg-white rounded-lg border p-4"><div class="text-xs text-gray-500 uppercase">Pages Scanned</div><div class="text-2xl font-bold text-blue-700" x-text="meta.pages_scanned || 0"></div></div>
+                <div class="bg-white rounded-lg border p-4"><div class="text-xs text-gray-500 uppercase">Keywords</div><div class="text-2xl font-bold text-red-700" x-text="meta.gsc_keywords || 0"></div></div>
+            </div>
+
+            <div class="flex gap-3 mb-4 items-center flex-wrap">
+                <input x-model="filterQuery" type="text" placeholder="Filter by keyword or URL..." class="border rounded-lg px-3 py-2 text-sm flex-1 min-w-200 outline-none">
+                <select x-model="minAuthority" class="border rounded-lg px-3 py-2 text-sm outline-none">
+                    <option value="0">Min Authority: Any</option><option value="60">Min Authority: 60</option><option value="80">Min Authority: 80</option>
+                </select>
+                <select x-model="sortBy" class="border rounded-lg px-3 py-2 text-sm outline-none">
+                    <option value="priority">Sort: Priority</option><option value="clicks">Sort: Clicks</option><option value="matches">Sort: Matches</option>
+                </select>
+                <button @click="exportCSV()" class="bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-green-700">Export CSV</button>
+            </div>
+
+            <div class="bg-white rounded-lg border overflow-hidden">
+                <table class="w-full text-sm">
+                    <thead><tr class="bg-gray-50 text-left">
+                        <th class="px-4 py-3">Page to Add Link To</th><th class="px-4 py-3 text-center w-24">Authority</th><th class="px-4 py-3 text-center w-28">Clicks (90d)</th><th class="px-4 py-3 text-center w-20">Anchors</th><th class="px-4 py-3">Best Anchor Text</th>
+                    </tr></thead>
+                    <tbody>
+                        <template x-for="opp in filteredOpportunities()" :key="opp.source_url">
+                            <tr class="border-t hover:bg-gray-50 cursor-pointer" @click="opp._expanded = !opp._expanded">
+                                <td class="px-4 py-3"><a :href="opp.source_url" target="_blank" class="text-blue-600 hover:underline flex items-center gap-1" @click.stop><span x-text="opp.source_url.split('/').slice(-2).join('/') || opp.source_url"></span><span class="text-gray-400 text-xs">&nearr;</span></a></td>
+                                <td class="px-4 py-3 text-center"><span class="px-2 py-0_5 rounded-full text-xs font-bold" :class="{'bg-green-100 text-green-800': opp.link_authority >= 80, 'bg-orange-100 text-orange-800': opp.link_authority >= 50 && opp.link_authority < 80, 'bg-red-100 text-red-800': opp.link_authority < 50}" x-text="opp.link_authority"></span></td>
+                                <td class="px-4 py-3 text-center" x-text="opp.organic_clicks_90d || 0"></td>
+                                <td class="px-4 py-3 text-center"><span class="bg-blue-100 text-blue-700 px-2 py-0_5 rounded-full text-xs font-bold" x-text="opp.match_count"></span></td>
+                                <td class="px-4 py-3 text-blue-600" x-text="opp.best_anchor"></td>
+                            </tr>
+                            <tr x-show="opp._expanded" class="bg-gray-50 border-t">
+                                <td colspan="5" class="px-4 py-3">
+                                    <div class="text-xs text-gray-500 mb-2">Anchor options on this page:</div>
+                                    <div class="space-y-2">
+                                        <template x-for="match in opp.matches" :key="match.keyword">
+                                            <div class="flex items-center gap-3 bg-white rounded border p-2">
+                                                <span class="text-xs font-medium min-w-160 text-center px-2 py-1 rounded" :class="match.impression_share >= 0.3 ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-700'">
+                                                    <span x-text="match.anchor_text || match.keyword"></span>
+                                                    <span class="text-gray-400 font-normal ml-1" x-text="'(' + Math.round((match.impression_share || 0) * 100) + '%)'"></span>
+                                                </span>
+                                                <span class="text-xs text-gray-600 flex-1" x-text="match.context || ''"></span>
+                                            </div>
+                                        </template>
+                                    </div>
+                                </td>
+                            </tr>
+                        </template>
+                    </tbody>
+                </table>
+                <div x-show="filteredOpportunities().length === 0" class="text-center py-12 text-gray-400">No opportunities match your filters.</div>
+            </div>
+        </div>
+
+        <div x-show="step === 'error'" class="max-w-md mx-auto mt-20">
+            <div class="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
+                <p class="text-red-800 font-medium mb-2">Analysis Failed</p>
+                <p class="text-red-600 text-sm" x-text="errorMessage"></p>
+                <button @click="step = 'input'" class="mt-4 text-sm text-blue-600 hover:underline">Try again</button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
