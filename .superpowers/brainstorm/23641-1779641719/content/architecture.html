@@ -1,0 +1,88 @@
+<h2>System Architecture</h2>
+<p class="subtitle">How the components connect and data flows through the pipeline</p>
+
+<div class="mockup" style="margin-bottom:24px">
+  <div class="mockup-header">Data Flow Pipeline</div>
+  <div class="mockup-body" style="padding:20px;font-family:monospace;font-size:13px;line-height:1.7">
+    <div style="display:flex;align-items:center;margin-bottom:12px">
+      <div style="background:#e8f0fe;border:1px solid #4285f4;border-radius:6px;padding:8px 14px;text-align:center;min-width:100px">
+        <strong>User Input</strong><br><span style="font-size:11px;color:#666">Target URL</span>
+      </div>
+      <span style="margin:0 8px;color:#999">→</span>
+      <div style="background:#e8f0fe;border:1px solid #4285f4;border-radius:6px;padding:8px 14px;text-align:center;min-width:100px">
+        <strong>SF CLI</strong><br><span style="font-size:11px;color:#666">Crawl &amp; Export</span>
+      </div>
+      <span style="margin:0 8px;color:#999">→</span>
+      <div style="background:#e8f0fe;border:1px solid #4285f4;border-radius:6px;padding:8px 14px;text-align:center;min-width:100px">
+        <strong>CSV Parser</strong><br><span style="font-size:11px;color:#666">URLs + Metrics</span>
+      </div>
+      <span style="margin:0 8px;color:#999">→</span>
+      <div style="background:#fce8e6;border:1px solid #ea4335;border-radius:6px;padding:8px 14px;text-align:center;min-width:100px">
+        <strong>Match Engine</strong><br><span style="font-size:11px;color:#666">Keyword + Link Check</span>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;margin-bottom:12px">
+      <div style="background:#e6f4ea;border:1px solid #34a853;border-radius:6px;padding:8px 14px;text-align:center;min-width:100px">
+        <strong>GSC API</strong><br><span style="font-size:11px;color:#666">Query Data</span>
+      </div>
+      <span style="margin:0 8px;color:#999">→</span>
+      <div style="background:#fce8e6;border:1px solid #ea4335;border-radius:6px;padding:8px 14px;text-align:center;min-width:100px">
+        <strong>Anchor Engine</strong><br><span style="font-size:11px;color:#666">Impression-Weighted</span>
+      </div>
+      <span style="margin:0 8px;color:#999">→</span>
+      <div style="background:#fff3e0;border:1px solid #fbbc04;border-radius:6px;padding:8px 14px;text-align:center;min-width:120px">
+        <strong>Dashboard</strong><br><span style="font-size:11px;color:#666">Opportunity Table</span>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center">
+      <div style="background:#f3e5f5;border:1px solid #9c27b0;border-radius:6px;padding:8px 14px;text-align:center;min-width:100px">
+        <strong>Page Fetcher</strong><br><span style="font-size:11px;color:#666">Source Content</span>
+      </div>
+      <span style="margin:0 8px;color:#999">→</span>
+      <div style="background:#fce8e6;border:1px solid #ea4335;border-radius:6px;padding:8px 14px;text-align:center;min-width:100px">
+        <strong>Match Engine</strong><br><span style="font-size:11px;color:#666">Full-Page Text Search</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<h3>Core Components</h3>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px">
+  <div class="card" style="margin:0">
+    <div class="card-body">
+      <h4>1. SF CLI Manager</h4>
+      <p style="font-size:13px">Wraps Screaming Frog CLI. Detects installation, triggers headless crawls with config files, polls status, exports CSV data (internal_all.csv, outlinks, inlinks). Handles GUI lock detection.</p>
+    </div>
+  </div>
+  <div class="card" style="margin:0">
+    <div class="card-body">
+      <h4>2. GSC Client</h4>
+      <p style="font-size:13px">Manages OAuth 2.0 flow (localhost redirect). Queries Search Analytics API for target URL. Handles pagination (25K rows per call), anonymized query filtering, metric normalization.</p>
+    </div>
+  </div>
+  <div class="card" style="margin:0">
+    <div class="card-body">
+      <h4>3. Page Fetcher</h4>
+      <p style="font-size:13px">Async HTTP fetcher for source page content. Parses HTML to extract readable text. Respects robots.txt, rate limits, timeouts. Extracts all outbound links for exclusion checking.</p>
+    </div>
+  </div>
+  <div class="card" style="margin:0">
+    <div class="card-body">
+      <h4>4. Match Engine</h4>
+      <p style="font-size:13px">Core logic. Takes GSC keywords + source page text + outlink list. Finds pages that contain keywords AND do NOT link to target URL. Scores opportunities by Link Score × GSC traffic.</p>
+    </div>
+  </div>
+  <div class="card" style="margin:0">
+    <div class="card-body">
+      <h4>5. Anchor Text Engine</h4>
+      <p style="font-size:13px">Builds impression-weighted anchor text distribution from GSC data. Suggests primary + variation anchor texts. Prevents over-optimization by balancing exact-match vs semantic variations.</p>
+    </div>
+  </div>
+  <div class="card" style="margin:0">
+    <div class="card-body">
+      <h4>6. FastAPI Server + Frontend</h4>
+      <p style="font-size:13px">Serves dashboard on localhost. REST API endpoints for analysis lifecycle. Real-time progress via SSE/polling. Sortable, filterable results table with export options.</p>
+    </div>
+  </div>
+</div>

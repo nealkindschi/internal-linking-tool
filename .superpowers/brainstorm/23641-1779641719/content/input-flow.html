@@ -1,0 +1,99 @@
+<h2>Analysis Input Flow</h2>
+<p class="subtitle">Step-by-step: from landing to opportunity dashboard</p>
+
+<div class="mockup" style="margin-bottom:20px">
+  <div class="mockup-header">Step 1 — Enter Target URL</div>
+  <div class="mockup-body" style="padding:20px;text-align:center">
+    <div style="max-width:500px;margin:0 auto">
+      <h3 style="margin-bottom:8px">Find Internal Linking Opportunities</h3>
+      <p style="color:#666;font-size:13px;margin-bottom:20px">Enter the page you want to build links to. We'll find every relevant, unlinked mention across your site.</p>
+      <div style="display:flex;gap:8px">
+        <input class="mock-input" placeholder="https://example.com/blog/target-page/" style="flex:1;font-size:14px;padding:10px">
+        <button class="mock-button" style="padding:10px 20px;font-size:14px">Analyze</button>
+      </div>
+      <p style="font-size:11px;color:#999;margin-top:12px">Requires: Screaming Frog installed locally + Google Search Console access</p>
+    </div>
+  </div>
+</div>
+
+<div class="mockup" style="margin-bottom:20px">
+  <div class="mockup-header">Step 2 — Connect Crawl Data</div>
+  <div class="mockup-body" style="padding:20px">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+      <div style="border:1px solid #e0e0e0;border-radius:8px;padding:16px;text-align:center">
+        <div style="font-size:20px;margin-bottom:8px">🕷️</div>
+        <h4 style="margin-bottom:4px">Use Existing Crawl</h4>
+        <p style="font-size:12px;color:#666;margin-bottom:12px">Select a saved Screaming Frog crawl from your machine</p>
+        <select style="width:100%;padding:8px;border:1px solid #ddd;border-radius:6px;font-size:13px;margin-bottom:8px">
+          <option>example.com — May 20, 2026 (12,440 URLs)</option>
+          <option>example.com — May 15, 2026 (11,890 URLs)</option>
+        </select>
+        <button class="mock-button" style="width:100%">Use This Crawl</button>
+      </div>
+      <div style="border:1px solid #e0e0e0;border-radius:8px;padding:16px;text-align:center">
+        <div style="font-size:20px;margin-bottom:8px">🔄</div>
+        <h4 style="margin-bottom:4px">Run New Crawl</h4>
+        <p style="font-size:12px;color:#666;margin-bottom:12px">Start a fresh headless crawl now</p>
+        <div style="text-align:left;font-size:12px;margin-bottom:12px">
+          <div style="margin-bottom:4px">⚙️ <strong>Config:</strong> Default settings</div>
+          <div style="margin-bottom:4px">📁 <strong>Config file:</strong> <span style="color:#999">(optional)</span></div>
+          <div>⏱️ <strong>Est. time:</strong> Depends on site size</div>
+        </div>
+        <button class="mock-button" style="width:100%;background:#e8f5e9;color:#2e7d32;border:1px solid #a5d6a7">Start Crawl</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="mockup" style="margin-bottom:20px">
+  <div class="mockup-header">Step 3 — Analysis Progress</div>
+  <div class="mockup-body" style="padding:20px">
+    <div style="max-width:400px;margin:0 auto">
+      <div style="margin-bottom:16px">
+        <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px">
+          <span>✅ GSC query data fetched</span>
+          <span style="color:#2e7d32">312 keywords</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px">
+          <span>✅ Crawl data parsed</span>
+          <span style="color:#2e7d32">1,240 pages</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px">
+          <span>🔄 Scanning page content...</span>
+          <span style="color:#1565c0">847 / 1,240</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:13px;color:#999">
+          <span>⏳ Matching keywords...</span>
+          <span>pending</span>
+        </div>
+      </div>
+      <div style="background:#e0e0e0;border-radius:10px;height:8px;overflow:hidden">
+        <div style="background:#4285f4;height:100%;width:68%;border-radius:10px"></div>
+      </div>
+      <p style="text-align:center;font-size:12px;color:#999;margin-top:8px">68% complete — ~30 seconds remaining</p>
+    </div>
+  </div>
+</div>
+
+<div class="mockup" style="margin-bottom:20px">
+  <div class="mockup-header">Step 4 — Results Dashboard (already approved)</div>
+  <div class="mockup-body" style="padding:16px;text-align:center;color:#666">
+    <p>→ Transitions to the sortable Opportunity Dashboard shown previously</p>
+  </div>
+</div>
+
+<div class="section">
+  <h3>Key Design Decisions</h3>
+  <div class="card" style="margin-bottom:10px"><div class="card-body">
+    <h4>GSC Auth: Lazy, Not Blocking</h4>
+    <p style="font-size:13px">OAuth flow only triggers on first use. Token cached locally. If GSC fails (no auth, quota exceeded), the tool still works — just without anchor text suggestions. Crawl-based matching is independent.</p>
+  </div></div>
+  <div class="card" style="margin-bottom:10px"><div class="card-body">
+    <h4>SF Crawl: List Existing or Start New</h4>
+    <p style="font-size:13px">Tool queries SF's stored crawls via CLI. User picks one or starts a new headless crawl. If SF isn't installed or GUI is locked, clear error message with fix instructions.</p>
+  </div></div>
+  <div class="card"><div class="card-body">
+    <h4>Progress: Real-Time, Cancellable</h4>
+    <p style="font-size:13px">Server-Sent Events (SSE) stream progress to the frontend. Each phase (GSC fetch → CSV parse → page scan → match) reports completion. User can cancel at any point.</p>
+  </div></div>
+</div>

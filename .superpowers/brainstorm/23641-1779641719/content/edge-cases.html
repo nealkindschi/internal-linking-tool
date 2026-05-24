@@ -1,0 +1,137 @@
+<h2>Error Handling & Edge Cases</h2>
+<p class="subtitle">What happens when dependencies fail or data is missing</p>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px">
+
+  <div class="card" style="margin:0">
+    <div class="card-body">
+      <h4>🕷️ SF Not Installed / Wrong Path</h4>
+      <p style="font-size:12px;color:#666;margin-bottom:8px">Tool can't find the Screaming Frog CLI at the expected path.</p>
+      <div style="background:#fff3e0;padding:8px;border-radius:4px;font-size:12px;border-left:3px solid #fbbc04">
+        <strong>User sees:</strong> "Screaming Frog not detected. Set <code>SF_CLI_PATH</code> in settings or install from screamingfrog.co.uk."
+      </div>
+      <p style="font-size:11px;color:#999;margin-top:8px">Health check at startup. Settings page lets user configure path.</p>
+    </div>
+  </div>
+
+  <div class="card" style="margin:0">
+    <div class="card-body">
+      <h4>🔒 SF GUI Is Open (Database Locked)</h4>
+      <p style="font-size:12px;color:#666;margin-bottom:8px">SF CLI can't access the crawl database while the GUI is running.</p>
+      <div style="background:#fff3e0;padding:8px;border-radius:4px;font-size:12px;border-left:3px solid #fbbc04">
+        <strong>User sees:</strong> "Please close the Screaming Frog application before continuing. The crawl database is locked."
+      </div>
+      <p style="font-size:11px;color:#999;margin-top:8px">Detected automatically. Lock detection is built into the SF CLI wrapper.</p>
+    </div>
+  </div>
+
+  <div class="card" style="margin:0">
+    <div class="card-body">
+      <h4>📭 No Saved Crawls</h4>
+      <p style="font-size:12px;color:#666;margin-bottom:8px">User hasn't saved any crawls in Screaming Frog yet.</p>
+      <div style="background:#e3f2fd;padding:8px;border-radius:4px;font-size:12px;border-left:3px solid #1565c0">
+        <strong>User sees:</strong> "No saved crawls found. Run a crawl in Screaming Frog first, or start a new one now."
+      </div>
+      <p style="font-size:11px;color:#999;margin-top:8px">Directs user to the "Start New Crawl" option. Not an error — a workflow guide.</p>
+    </div>
+  </div>
+
+  <div class="card" style="margin:0">
+    <div class="card-body">
+      <h4>⏱️ Crawl Timeout</h4>
+      <p style="font-size:12px;color:#666;margin-bottom:8px">Headless crawl takes too long or hangs.</p>
+      <div style="background:#fce4ec;padding:8px;border-radius:4px;font-size:12px;border-left:3px solid #c62828">
+        <strong>User sees:</strong> "Crawl is taking longer than expected. You can wait, cancel and try with a smaller scope, or run the crawl in the SF GUI."
+      </div>
+      <p style="font-size:11px;color:#999;margin-top:8px">Configurable timeout (default 30 min). Progress shown during crawl.</p>
+    </div>
+  </div>
+
+  <div class="card" style="margin:0">
+    <div class="card-body">
+      <h4>🔑 GSC Auth Failure</h4>
+      <p style="font-size:12px;color:#666;margin-bottom:8px">OAuth flow fails, token expired, or user lacks permission for the property.</p>
+      <div style="background:#fff3e0;padding:8px;border-radius:4px;font-size:12px;border-left:3px solid #fbbc04">
+        <strong>User sees:</strong> "Google Search Console access failed. Analysis will continue without anchor text suggestions. Reconnect in Settings."
+      </div>
+      <p style="font-size:11px;color:#999;margin-top:8px">GSC is non-blocking. The tool degrades gracefully — crawl matching still works.</p>
+    </div>
+  </div>
+
+  <div class="card" style="margin:0">
+    <div class="card-body">
+      <h4>📊 GSC Quota Exceeded</h4>
+      <p style="font-size:12px;color:#666;margin-bottom:8px">Daily 50K row limit hit for the GSC property.</p>
+      <div style="background:#fff3e0;padding:8px;border-radius:4px;font-size:12px;border-left:3px solid #fbbc04">
+        <strong>User sees:</strong> "GSC daily quota reached. Try again tomorrow. Analysis will continue with previously cached keyword data if available."
+      </div>
+      <p style="font-size:11px;color:#999;margin-top:8px">Cache GSC results locally per target URL. Reuse cache if fresh (&lt;7 days).</p>
+    </div>
+  </div>
+
+  <div class="card" style="margin:0">
+    <div class="card-body">
+      <h4>🎯 Target URL Not in Crawl</h4>
+      <p style="font-size:12px;color:#666;margin-bottom:8px">The URL the user wants to build links to wasn't found in the SF crawl.</p>
+      <div style="background:#fce4ec;padding:8px;border-radius:4px;font-size:12px;border-left:3px solid #c62828">
+        <strong>User sees:</strong> "Target URL not found in crawl data. Check the URL or run a fresh crawl that includes this page."
+      </div>
+      <p style="font-size:11px;color:#999;margin-top:8px">May mean the page is orphaned or blocked. Valuable signal in itself.</p>
+    </div>
+  </div>
+
+  <div class="card" style="margin:0">
+    <div class="card-body">
+      <h4>🔍 Zero Opportunities Found</h4>
+      <p style="font-size:12px;color:#666;margin-bottom:8px">No unlinked keyword mentions across the entire site.</p>
+      <div style="background:#e3f2fd;padding:8px;border-radius:4px;font-size:12px;border-left:3px solid #1565c0">
+        <strong>User sees:</strong> "No unlinked opportunities found. The page may already be well-linked, or GSC keywords may not appear in your content."
+      </div>
+      <p style="font-size:11px;color:#999;margin-top:8px">Not an error. Could mean great internal linking (good) or content/keyword mismatch.</p>
+    </div>
+  </div>
+
+  <div class="card" style="margin:0">
+    <div class="card-body">
+      <h4>🌐 Page Fetch Failures</h4>
+      <p style="font-size:12px;color:#666;margin-bottom:8px">Some source URLs timeout, return 404, or block the fetcher.</p>
+      <div style="background:#fff3e0;padding:8px;border-radius:4px;font-size:12px;border-left:3px solid #fbbc04">
+        <strong>User sees:</strong> "X pages could not be scanned (timeout, blocked, or error). Results shown for Y pages successfully scanned."
+      </div>
+      <p style="font-size:11px;color:#999;margin-top:8px">Failed fetches logged. Tool continues with partial results. Retry option for failed pages.</p>
+    </div>
+  </div>
+
+  <div class="card" style="margin:0">
+    <div class="card-body">
+      <h4>📄 Malformed CSV</h4>
+      <p style="font-size:12px;color:#666;margin-bottom:8px">SF export is corrupted, missing columns, or wrong encoding.</p>
+      <div style="background:#fce4ec;padding:8px;border-radius:4px;font-size:12px;border-left:3px solid #c62828">
+        <strong>User sees:</strong> "Could not parse crawl data. Expected columns: [URL, Link Score, ...]. Found: [list]. Try re-exporting from Screaming Frog."
+      </div>
+      <p style="font-size:11px;color:#999;margin-top:8px">Validate CSV schema on parse. Fail fast with specific error. Don't silently skip rows.</p>
+    </div>
+  </div>
+
+</div>
+
+<div class="section" style="margin-top:20px">
+  <h3>Graceful Degradation Principle</h3>
+  <p>The tool has two independent data pipelines. If one fails, the other still works:</p>
+  <div style="display:flex;gap:12px;margin-top:12px">
+    <div style="flex:1;background:#f5f5f5;border-radius:8px;padding:14px;text-align:center">
+      <h4 style="margin-bottom:4px">SF Crawl → Matching</h4>
+      <p style="font-size:12px;color:#666">Always runs. Finds page context + checks existing links. Works even without GSC.</p>
+    </div>
+    <div style="font-size:20px;display:flex;align-items:center;color:#999">+</div>
+    <div style="flex:1;background:#f5f5f5;border-radius:8px;padding:14px;text-align:center">
+      <h4 style="margin-bottom:4px">GSC → Anchor Suggestions</h4>
+      <p style="font-size:12px;color:#666">Enhances results. Adds anchor text suggestions + impression weighting. Optional layer.</p>
+    </div>
+    <div style="font-size:20px;display:flex;align-items:center;color:#999">=</div>
+    <div style="flex:1;background:#e8f5e9;border-radius:8px;padding:14px;text-align:center">
+      <h4 style="margin-bottom:4px">Full Results</h4>
+      <p style="font-size:12px;color:#2e7d32">Both pipelines → complete dashboard. Either alone → still useful.</p>
+    </div>
+  </div>
+</div>

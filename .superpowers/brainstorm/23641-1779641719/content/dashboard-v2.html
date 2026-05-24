@@ -1,0 +1,120 @@
+<h2>Opportunity Dashboard (Revised)</h2>
+<p class="subtitle">Updated with clearer headers, clickable URLs, and actionable metrics</p>
+
+<div class="mockup" style="margin-bottom:20px">
+  <div class="mockup-header">Internal Linking Tool — /blog/renewable-energy/</div>
+  <div class="mockup-body" style="padding:16px">
+    
+    <!-- Top bar: summary stats -->
+    <div style="display:flex;gap:12px;margin-bottom:16px;flex-wrap:wrap">
+      <div style="background:#e8f5e9;border-radius:6px;padding:10px 16px;flex:1;min-width:120px">
+        <div style="font-size:11px;color:#666;text-transform:uppercase">Opportunities</div>
+        <div style="font-size:24px;font-weight:bold;color:#2e7d32">47</div>
+      </div>
+      <div style="background:#fff3e0;border-radius:6px;padding:10px 16px;flex:1;min-width:120px">
+        <div style="font-size:11px;color:#666;text-transform:uppercase">High Priority</div>
+        <div style="font-size:24px;font-weight:bold;color:#e65100">18</div>
+        <div style="font-size:11px;color:#999">Link Authority &gt; 60</div>
+      </div>
+      <div style="background:#e3f2fd;border-radius:6px;padding:10px 16px;flex:1;min-width:120px">
+        <div style="font-size:11px;color:#666;text-transform:uppercase">Pages Scanned</div>
+        <div style="font-size:24px;font-weight:bold;color:#1565c0">1,240</div>
+      </div>
+      <div style="background:#fce4ec;border-radius:6px;padding:10px 16px;flex:1;min-width:120px">
+        <div style="font-size:11px;color:#666;text-transform:uppercase">GSC Keywords</div>
+        <div style="font-size:24px;font-weight:bold;color:#c62828">312</div>
+      </div>
+    </div>
+
+    <!-- Filter bar -->
+    <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;align-items:center">
+      <input class="mock-input" placeholder="Filter by keyword or URL..." style="flex:1;min-width:200px">
+      <select style="padding:6px 10px;border:1px solid #ddd;border-radius:6px;font-size:13px">
+        <option>Min Authority: Any</option>
+        <option>Min Authority: 60</option>
+        <option>Min Authority: 80</option>
+      </select>
+      <select style="padding:6px 10px;border:1px solid #ddd;border-radius:6px;font-size:13px">
+        <option>Sort: Priority ↓</option>
+        <option>Sort: Clicks ↓</option>
+        <option>Sort: Matches ↓</option>
+        <option>Sort: URL A-Z</option>
+      </select>
+      <button class="mock-button" style="background:#34a853;color:white;border:none">Export CSV</button>
+    </div>
+
+    <!-- Table -->
+    <table style="width:100%;border-collapse:collapse;font-size:13px">
+      <thead>
+        <tr style="background:#f5f5f5;text-align:left">
+          <th style="padding:8px;border-bottom:2px solid #ddd">Page to Add Link To</th>
+          <th style="padding:8px;border-bottom:2px solid #ddd;text-align:center">Link Authority</th>
+          <th style="padding:8px;border-bottom:2px solid #ddd;text-align:center">Organic Clicks (90d)</th>
+          <th style="padding:8px;border-bottom:2px solid #ddd">Keyword in Content</th>
+          <th style="padding:8px;border-bottom:2px solid #ddd">Best Anchor Text</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr style="border-bottom:1px solid #eee;cursor:pointer">
+          <td style="padding:8px;"><a href="#" style="color:#1565c0;text-decoration:none;display:flex;align-items:center;gap:4px">/blog/solar-panel-guide-2024 <span style="font-size:10px;color:#999">↗</span></a></td>
+          <td style="padding:8px;text-align:center"><span style="background:#e8f5e9;color:#2e7d32;padding:2px 8px;border-radius:10px;font-weight:bold">94</span></td>
+          <td style="padding:8px;text-align:center">1,240</td>
+          <td style="padding:8px">renewable energy solutions</td>
+          <td style="padding:8px;color:#1565c0">renewable energy solutions</td>
+        </tr>
+        <tr style="border-bottom:1px solid #eee;cursor:pointer">
+          <td style="padding:8px;"><a href="#" style="color:#1565c0;text-decoration:none;display:flex;align-items:center;gap:4px">/blog/wind-power-basics <span style="font-size:10px;color:#999">↗</span></a></td>
+          <td style="padding:8px;text-align:center"><span style="background:#e8f5e9;color:#2e7d32;padding:2px 8px;border-radius:10px;font-weight:bold">87</span></td>
+          <td style="padding:8px;text-align:center">890</td>
+          <td style="padding:8px">sustainable energy</td>
+          <td style="padding:8px;color:#1565c0">sustainable energy sources</td>
+        </tr>
+        <tr style="border-bottom:1px solid #eee;cursor:pointer">
+          <td style="padding:8px"><a href="#" style="color:#1565c0;text-decoration:none;display:flex;align-items:center;gap:4px">/guides/home-energy-audit <span style="font-size:10px;color:#999">↗</span></a></td>
+          <td style="padding:8px;text-align:center"><span style="background:#fff3e0;color:#e65100;padding:2px 8px;border-radius:10px;font-weight:bold">63</span></td>
+          <td style="padding:8px;text-align:center">420</td>
+          <td style="padding:8px">green power options</td>
+          <td style="padding:8px;color:#1565c0">green energy alternatives</td>
+        </tr>
+        <tr style="border-bottom:1px solid #eee;cursor:pointer">
+          <td style="padding:8px"><a href="#" style="color:#1565c0;text-decoration:none;display:flex;align-items:center;gap:4px">/blog/energy-efficiency-tips <span style="font-size:10px;color:#999">↗</span></a></td>
+          <td style="padding:8px;text-align:center"><span style="background:#fce4ec;color:#c62828;padding:2px 8px;border-radius:10px;font-weight:bold">48</span></td>
+          <td style="padding:8px;text-align:center">310</td>
+          <td style="padding:8px">clean energy</td>
+          <td style="padding:8px;color:#1565c0">clean energy solutions</td>
+        </tr>
+      </tbody>
+    </table>
+    
+    <!-- Row detail expand -->
+    <div style="margin-top:8px;padding:10px;background:#fafafa;border-radius:6px;border:1px solid #eee">
+      <div style="font-size:12px;color:#666;margin-bottom:4px">Selected: /blog/solar-panel-guide-2024  —  <a href="#" style="color:#1565c0">Open in new tab ↗</a></div>
+      <div style="font-size:12px;margin-bottom:4px"><strong>Context:</strong> "...the future of <mark>renewable energy solutions</mark> depends on continued investment in solar technology and grid modernization..."</div>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+        <div style="font-size:12px"><strong>Anchor options (by impression share):</strong></div>
+        <span style="background:#e8f0fe;padding:2px 8px;border-radius:4px;font-size:12px;font-weight:bold">renewable energy solutions <span style="color:#999;font-weight:normal">(40%)</span></span>
+        <span style="background:#f5f5f5;padding:2px 8px;border-radius:4px;font-size:12px">renewable energy <span style="color:#999">(25%)</span></span>
+        <span style="background:#f5f5f5;padding:2px 8px;border-radius:4px;font-size:12px">green energy <span style="color:#999">(15%)</span></span>
+        <span style="background:#f5f5f5;padding:2px 8px;border-radius:4px;font-size:12px">+ 8 more</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>Changes Made</h3>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+    <div class="card" style="margin:0"><div class="card-body">
+      <h4>❌ Removed Avg Link Score</h4><p style="font-size:13px">Replaced with <strong>High Priority</strong> count — shows how many opportunities have Link Authority above 60. Actionable, not statistical.</p>
+    </div></div>
+    <div class="card" style="margin:0"><div class="card-body">
+      <h4>📋 Clearer Table Headers</h4><p style="font-size:13px">"Source Page" → <strong>Page to Add Link To</strong>. "Score" → <strong>Link Authority</strong>. "GSC Clicks" → <strong>Organic Clicks (90d)</strong>. Each header now describes <em>what</em> and <em>why</em>.</p>
+    </div></div>
+    <div class="card" style="margin:0"><div class="card-body">
+      <h4>🔗 Clickable URLs</h4><p style="font-size:13px">Source page URLs are now links that open in a new tab. Row detail panel also has an "Open in new tab" link. Quick content review without copy-paste.</p>
+    </div></div>
+    <div class="card" style="margin:0"><div class="card-body">
+      <h4>📊 Impression % on Anchors</h4><p style="font-size:13px">Anchor text suggestions now show impression share percentages from GSC data, making the distribution logic transparent to the user.</p>
+    </div></div>
+  </div>
+</div>

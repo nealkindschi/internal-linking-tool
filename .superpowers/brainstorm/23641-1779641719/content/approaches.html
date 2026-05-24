@@ -1,0 +1,45 @@
+<h2>Choose an Architecture</h2>
+<p class="subtitle">Three ways to build the Internal Linking Tool — each with different strengths</p>
+
+<div class="options">
+  <div class="option" data-choice="nextjs" onclick="toggleSelect(this)">
+    <div class="letter">A</div>
+    <div class="content">
+      <h3>Next.js Full-Stack</h3>
+      <p>Single codebase for frontend + backend. API routes handle GSC OAuth, CSV parsing, and page fetching. Server components for the dashboard. Deploy to Vercel.</p>
+      <div class="pros-cons" style="margin-top:12px">
+        <div class="pros"><h4>Pros</h4><ul><li>One language (TypeScript)</li><li>Simplest deployment</li><li>Great for real-time dashboards</li></ul></div>
+        <div class="cons"><h4>Cons</h4><ul><li>Page fetching is IO-heavy — could block API routes</li><li>Less mature for CSV/analytics than Python</li></ul></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="python-react" onclick="toggleSelect(this)">
+    <div class="letter">B</div>
+    <div class="content">
+      <h3>Python Backend + React Frontend</h3>
+      <p>FastAPI backend for data processing (CSV parsing, GSC API, page fetching, matching). React frontend for the dashboard. Separate services, more powerful analytics.</p>
+      <div class="pros-cons" style="margin-top:12px">
+        <div class="pros"><h4>Pros</h4><ul><li>Python excels at CSV/analytics</li><li>google-api-python-client is official</li><li>Async HTTP fetching (httpx/aiohttp)</li></ul></div>
+        <div class="cons"><h4>Cons</h4><ul><li>Two codebases to maintain</li><li>More complex deployment</li><li>Requires API contract between front/back</li></ul></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="lite" onclick="toggleSelect(this)">
+    <div class="letter">C</div>
+    <div class="content">
+      <h3>Lightweight SPA + Proxy</h3>
+      <p>React/Vue SPA that does CSV parsing client-side. A thin Node/Python proxy handles GSC OAuth (to protect secrets). Page fetching via browser — limited by CORS.</p>
+      <div class="pros-cons" style="margin-top:12px">
+        <div class="pros"><h4>Pros</h4><ul><li>Minimal backend infrastructure</li><li>Fast to prototype</li><li>Static hosting possible</li></ul></div>
+        <div class="cons"><h4>Cons</h4><ul><li>CORS limits page fetching</li><li>Large CSVs choke the browser</li><li>GSC token management is fragile</li></ul></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section" style="margin-top:32px">
+  <h3>My Recommendation: Approach A — Next.js</h3>
+  <p>For a single-URL tool with a dashboard UI, Next.js gives you the fastest path to a working product. API routes handle the heavy lifting server-side (no CORS issues), server components render tables efficiently, and deployment is one command. If the CSV analytics become a bottleneck later, you can always extract that logic into a Python microservice without changing the frontend.</p>
+</div>

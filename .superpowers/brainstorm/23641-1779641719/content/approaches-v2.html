@@ -1,0 +1,45 @@
+<h2>Local-First Architectures (Revised)</h2>
+<p class="subtitle">Three ways to build a local web tool that integrates directly with Screaming Frog CLI</p>
+
+<div class="options">
+  <div class="option" data-choice="python" onclick="toggleSelect(this)">
+    <div class="letter">A</div>
+    <div class="content">
+      <h3>Python Local Server</h3>
+      <p>FastAPI backend running on localhost. Shells out to SF CLI for crawl/exports. Uses google-api-python-client for GSC, BeautifulSoup for page fetching. React or vanilla JS frontend.</p>
+      <div class="pros-cons" style="margin-top:12px">
+        <div class="pros"><h4>Pros</h4><ul><li>SF MCP is Python — borrow patterns</li><li>google-api-python-client is official, mature</li><li>pandas for CSV/analytics</li><li>subprocess management is straightforward</li></ul></div>
+        <div class="cons"><h4>Cons</h4><ul><li>Python packaging can be fiddly</li><li>Two languages if using React frontend</li></ul></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="node" onclick="toggleSelect(this)">
+    <div class="letter">B</div>
+    <div class="content">
+      <h3>Node.js Local Server</h3>
+      <p>Express or Next.js on localhost. child_process for SF CLI. Google APIs Node.js client for GSC. Cheerio/Puppeteer for page parsing. TypeScript throughout.</p>
+      <div class="pros-cons" style="margin-top:12px">
+        <div class="pros"><h4>Pros</h4><ul><li>Single language (TypeScript)</li><li>Excellent for real-time dashboards</li><li>Next.js gives SSR + API routes</li></ul></div>
+        <div class="cons"><h4>Cons</h4><ul><li>Google Node.js client less mature than Python version</li><li>CSV processing less ergonomic than pandas</li><li>SF CLI subprocess management in Node</li></ul></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="electron" onclick="toggleSelect(this)">
+    <div class="letter">C</div>
+    <div class="content">
+      <h3>Electron Desktop App</h3>
+      <p>Full desktop app via Electron. Bundles Python backend. Native OS integration — file dialogs, system tray, auto-launch. Polished installation experience.</p>
+      <div class="pros-cons" style="margin-top:12px">
+        <div class="pros"><h4>Pros</h4><ul><li>Native OS experience</li><li>No "open localhost:3000" friction</li><li>Bundled dependencies — no pip install</li></ul></div>
+        <div class="cons"><h4>Cons</h4><ul><li>Heavy (~150MB+ bundle)</li><li>Complex build/packaging</li><li>Overkill for a table dashboard</li></ul></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section" style="margin-top:32px">
+  <h3>My Recommendation: Approach A — Python Local Server</h3>
+  <p>Python is the natural choice here. The Screaming Frog MCP server is already Python — we can study its CLI integration patterns. <code>google-api-python-client</code> is Google's official library with excellent GSC support. <code>pandas</code> makes CSV processing trivial. And <code>subprocess</code> management for the SF CLI is straightforward. For the frontend, we can keep it simple with a lightweight framework (HTMX or vanilla JS) or go with React — both work with FastAPI serving the static files. The whole thing runs with a single <code>pip install</code> and <code>python app.py</code>.</p>
+</div>

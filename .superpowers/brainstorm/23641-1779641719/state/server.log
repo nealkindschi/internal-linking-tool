@@ -1,0 +1,11 @@
+{"type":"server-started","port":53957,"host":"127.0.0.1","url_host":"localhost","url":"http://localhost:53957","screen_dir":"/Users/nealkindschi/Desktop/OpenCode Projects/internal linking tool/.superpowers/brainstorm/23641-1779641719/content","state_dir":"/Users/nealkindschi/Desktop/OpenCode Projects/internal linking tool/.superpowers/brainstorm/23641-1779641719/state"}
+{"type":"screen-added","file":"/Users/nealkindschi/Desktop/OpenCode Projects/internal linking tool/.superpowers/brainstorm/23641-1779641719/content/approaches.html"}
+{"type":"screen-added","file":"/Users/nealkindschi/Desktop/OpenCode Projects/internal linking tool/.superpowers/brainstorm/23641-1779641719/content/approaches-v2.html"}
+{"source":"user-event","type":"click","text":"A\n    \n      Python Local Server\n      FastAPI backend running on localhost. Shells out to SF CLI for crawl/exports. Uses google-api-python-client for GSC, BeautifulSoup for page fetching. React or vanilla JS frontend.\n      \n        ProsSF MCP is Python — borrow patternsgoogle-api-python-client is official, maturepandas for CSV/analyticssubprocess management is straightforward\n        ConsPython packaging can be fiddlyTwo languages if using React frontend","choice":"python","id":null,"timestamp":1779642365048}
+{"type":"screen-added","file":"/Users/nealkindschi/Desktop/OpenCode Projects/internal linking tool/.superpowers/brainstorm/23641-1779641719/content/architecture.html"}
+{"type":"screen-added","file":"/Users/nealkindschi/Desktop/OpenCode Projects/internal linking tool/.superpowers/brainstorm/23641-1779641719/content/dashboard.html"}
+{"type":"screen-added","file":"/Users/nealkindschi/Desktop/OpenCode Projects/internal linking tool/.superpowers/brainstorm/23641-1779641719/content/dashboard-v2.html"}
+{"type":"screen-added","file":"/Users/nealkindschi/Desktop/OpenCode Projects/internal linking tool/.superpowers/brainstorm/23641-1779641719/content/input-flow.html"}
+{"type":"screen-added","file":"/Users/nealkindschi/Desktop/OpenCode Projects/internal linking tool/.superpowers/brainstorm/23641-1779641719/content/dashboard-v3.html"}
+{"type":"screen-added","file":"/Users/nealkindschi/Desktop/OpenCode Projects/internal linking tool/.superpowers/brainstorm/23641-1779641719/content/edge-cases.html"}
+{"type":"server-stopped","reason":"idle timeout"}

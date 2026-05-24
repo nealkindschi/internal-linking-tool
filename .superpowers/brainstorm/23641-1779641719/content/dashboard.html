@@ -1,0 +1,121 @@
+<h2>Opportunity Dashboard Mockup</h2>
+<p class="subtitle">How the main interface looks after analysis completes</p>
+
+<div class="mockup" style="margin-bottom:20px">
+  <div class="mockup-header">Internal Linking Tool — Results for /blog/renewable-energy/</div>
+  <div class="mockup-body" style="padding:16px">
+    
+    <!-- Top bar: summary stats -->
+    <div style="display:flex;gap:12px;margin-bottom:16px;flex-wrap:wrap">
+      <div style="background:#e8f5e9;border-radius:6px;padding:10px 16px;flex:1;min-width:120px">
+        <div style="font-size:11px;color:#666;text-transform:uppercase">Opportunities Found</div>
+        <div style="font-size:24px;font-weight:bold;color:#2e7d32">47</div>
+      </div>
+      <div style="background:#e3f2fd;border-radius:6px;padding:10px 16px;flex:1;min-width:120px">
+        <div style="font-size:11px;color:#666;text-transform:uppercase">Source URLs</div>
+        <div style="font-size:24px;font-weight:bold;color:#1565c0">1,240</div>
+      </div>
+      <div style="background:#fff3e0;border-radius:6px;padding:10px 16px;flex:1;min-width:120px">
+        <div style="font-size:11px;color:#666;text-transform:uppercase">Avg Link Score</div>
+        <div style="font-size:24px;font-weight:bold;color:#e65100">72</div>
+      </div>
+      <div style="background:#fce4ec;border-radius:6px;padding:10px 16px;flex:1;min-width:120px">
+        <div style="font-size:11px;color:#666;text-transform:uppercase">GSC Keywords</div>
+        <div style="font-size:24px;font-weight:bold;color:#c62828">312</div>
+      </div>
+    </div>
+
+    <!-- Filter bar -->
+    <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;align-items:center">
+      <input class="mock-input" placeholder="Filter by keyword or URL..." style="flex:1;min-width:200px">
+      <select style="padding:6px 10px;border:1px solid #ddd;border-radius:6px;font-size:13px">
+        <option>Min Link Score: Any</option>
+        <option>Min Link Score: 60</option>
+        <option>Min Link Score: 80</option>
+      </select>
+      <select style="padding:6px 10px;border:1px solid #ddd;border-radius:6px;font-size:13px">
+        <option>Sort: Score ↓</option>
+        <option>Sort: Clicks ↓</option>
+        <option>Sort: Matches ↓</option>
+        <option>Sort: URL A-Z</option>
+      </select>
+      <button class="mock-button">Export CSV</button>
+    </div>
+
+    <!-- Table -->
+    <table style="width:100%;border-collapse:collapse;font-size:13px">
+      <thead>
+        <tr style="background:#f5f5f5;text-align:left">
+          <th style="padding:8px;border-bottom:2px solid #ddd">Source Page</th>
+          <th style="padding:8px;border-bottom:2px solid #ddd;text-align:center">Score</th>
+          <th style="padding:8px;border-bottom:2px solid #ddd;text-align:center">GSC Clicks</th>
+          <th style="padding:8px;border-bottom:2px solid #ddd">Matched Keyword</th>
+          <th style="padding:8px;border-bottom:2px solid #ddd">Suggested Anchor</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr style="border-bottom:1px solid #eee">
+          <td style="padding:8px;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">/blog/solar-panel-guide-2024</td>
+          <td style="padding:8px;text-align:center"><span style="background:#e8f5e9;color:#2e7d32;padding:2px 8px;border-radius:10px;font-weight:bold">94</span></td>
+          <td style="padding:8px;text-align:center">1,240</td>
+          <td style="padding:8px">renewable energy solutions</td>
+          <td style="padding:8px;color:#1565c0">renewable energy solutions</td>
+        </tr>
+        <tr style="border-bottom:1px solid #eee">
+          <td style="padding:8px;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">/blog/wind-power-basics</td>
+          <td style="padding:8px;text-align:center"><span style="background:#e8f5e9;color:#2e7d32;padding:2px 8px;border-radius:10px;font-weight:bold">87</span></td>
+          <td style="padding:8px;text-align:center">890</td>
+          <td style="padding:8px">sustainable energy</td>
+          <td style="padding:8px;color:#1565c0">sustainable energy sources</td>
+        </tr>
+        <tr style="border-bottom:1px solid #eee">
+          <td style="padding:8px;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">/guides/home-energy-audit</td>
+          <td style="padding:8px;text-align:center"><span style="background:#fff3e0;color:#e65100;padding:2px 8px;border-radius:10px;font-weight:bold">63</span></td>
+          <td style="padding:8px;text-align:center">420</td>
+          <td style="padding:8px">green power options</td>
+          <td style="padding:8px;color:#1565c0">green energy alternatives</td>
+        </tr>
+        <tr style="border-bottom:1px solid #eee">
+          <td style="padding:8px;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">/blog/energy-efficiency-tips</td>
+          <td style="padding:8px;text-align:center"><span style="background:#fce4ec;color:#c62828;padding:2px 8px;border-radius:10px;font-weight:bold">48</span></td>
+          <td style="padding:8px;text-align:center">310</td>
+          <td style="padding:8px">clean energy</td>
+          <td style="padding:8px;color:#1565c0">clean energy solutions</td>
+        </tr>
+      </tbody>
+    </table>
+    
+    <!-- Row detail expand -->
+    <div style="margin-top:8px;padding:10px;background:#fafafa;border-radius:6px;border:1px solid #eee">
+      <div style="font-size:12px;color:#666;margin-bottom:4px">Selected: /blog/solar-panel-guide-2024</div>
+      <div style="font-size:12px;margin-bottom:4px"><strong>Context:</strong> "...the future of <mark>renewable energy solutions</mark> depends on continued investment in solar technology and grid modernization..."</div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <div style="font-size:12px"><strong>Anchor options:</strong></div>
+        <span style="background:#e8f0fe;padding:2px 8px;border-radius:4px;font-size:12px">renewable energy solutions</span>
+        <span style="background:#f5f5f5;padding:2px 8px;border-radius:4px;font-size:12px">renewable energy</span>
+        <span style="background:#f5f5f5;padding:2px 8px;border-radius:4px;font-size:12px">green energy solutions</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>Dashboard Features</h3>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+    <div class="card" style="margin:0"><div class="card-body">
+      <h4>Summary Bar</h4><p style="font-size:13px">At-a-glance stats: total opportunities, source URLs scanned, average Link Score, unique GSC keywords used.</p>
+    </div></div>
+    <div class="card" style="margin:0"><div class="card-body">
+      <h4>Sortable Table</h4><p style="font-size:13px">Default sort by Link Score × Clicks. Click any column to re-sort. Color-coded Link Score badges (green &gt;80, orange 50-80, red &lt;50).</p>
+    </div></div>
+    <div class="card" style="margin:0"><div class="card-body">
+      <h4>Smart Filters</h4><p style="font-size:13px">Filter by minimum Link Score, keyword text, URL pattern. Search across all columns.</p>
+    </div></div>
+    <div class="card" style="margin:0"><div class="card-body">
+      <h4>Row Detail Panel</h4><p style="font-size:13px">Click any row to expand: see keyword in context, anchor text options ranked by impression share, direct link to source page.</p>
+    </div></div>
+    <div class="card" style="margin:0"><div class="card-body">
+      <h4>CSV Export</h4><p style="font-size:13px">Export current filtered/sorted view as CSV for sharing with content teams or importing into CMS workflows.</p>
+    </div></div>
+  </div>
+</div>
