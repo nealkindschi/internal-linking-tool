@@ -1,6 +1,8 @@
 """Screaming Frog CLI integration manager."""
 
+import atexit
 import re
+import shutil
 import subprocess
 import tempfile
 from pathlib import Path
@@ -105,9 +107,10 @@ class SfCliManager:
     def export_crawl_data(self, crawl_id, export_dir=None):
         if export_dir is None:
             export_dir = tempfile.mkdtemp(prefix="sf_export_")
+            atexit.register(lambda d=export_dir: shutil.rmtree(d, ignore_errors=True))
         self._run([
             "--load-crawl", crawl_id,
-            "--export-tabs", "Internal:All",
+            "--export-tabs", "Internal:HTML",
             "--output-folder", export_dir,
             "--export-format", "csv",
             "--overwrite",

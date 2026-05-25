@@ -1,6 +1,7 @@
 """LLM client for generating SEO anchor text via OpenAI-compatible API (DeepSeek V4 Pro)."""
 
 import json
+import logging
 from typing import Optional
 
 
@@ -17,6 +18,7 @@ class LlmAnchorClient:
         self.api_key = api_key
         self.model = model
         self._available = bool(api_key)
+        self._logger = logging.getLogger(__name__)
 
     def is_available(self) -> bool:
         return self._available
@@ -68,6 +70,7 @@ class LlmAnchorClient:
             return self._retry(client, prompt)
 
         except Exception:
+            self._logger.warning("LLM anchor generation failed", exc_info=True)
             return None
 
     def _retry(self, client, original_prompt) -> Optional[list[str]]:
@@ -84,6 +87,7 @@ class LlmAnchorClient:
             content = response.choices[0].message.content.strip()
             return self._parse_response(content)
         except Exception:
+            self._logger.warning("LLM retry also failed", exc_info=True)
             return None
 
     @staticmethod

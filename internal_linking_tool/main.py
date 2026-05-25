@@ -1,7 +1,8 @@
 """FastAPI application for the Internal Linking Tool."""
 
-import uuid
 import asyncio
+import logging
+import uuid
 from pathlib import Path
 from typing import Optional
 
@@ -16,6 +17,7 @@ from internal_linking_tool.gsc_client import GscClient
 from internal_linking_tool.analyzer import run_analysis
 from internal_linking_tool.sse import sse_emitter
 
+logger = logging.getLogger(__name__)
 STATIC_DIR = Path(__file__).parent / "static"
 
 
@@ -47,7 +49,7 @@ def create_app():
         try:
             gsc_ok = app.state.gsc_client.is_authenticated
         except Exception:
-            pass
+            logger.warning("GSC health check failed", exc_info=True)
         return {"sf_installed": sf_ok, "sf_path": config.sf_cli_path, "gsc_configured": gsc_ok, "server": "ok"}
 
     @app.get("/api/crawls")
@@ -166,6 +168,7 @@ async def _run_background_analysis(analysis_id, request, app):
         )
         app.state.analyses[analysis_id] = result
     except Exception as e:
+        logger.error("Background analysis %s failed", analysis_id, exc_info=True)
         app.state.analyses[analysis_id] = {"error": str(e)}
         await sse_emitter.emit(analysis_id, "error", {"detail": str(e)})
 

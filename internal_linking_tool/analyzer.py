@@ -1,8 +1,11 @@
 """Analysis orchestrator: coordinates the full pipeline."""
 
+import logging
 import uuid
 from dataclasses import dataclass
 from typing import Optional
+
+logger = logging.getLogger(__name__)
 
 import pandas as pd
 
@@ -111,7 +114,7 @@ class Analyzer:
                     queries = [GscQueryResult(query=kw, page=self.target_url, impressions=1) for kw in keywords]
                     state.detail = f"GSC unavailable, using {len(queries)} on-page keywords instead"
             except Exception:
-                pass
+                logger.warning("Target page keyword extraction failed for %s", self.target_url, exc_info=True)
 
         state.set_phase("target_fetch", "Analyzing target page...", 20)
         if stream_id:
