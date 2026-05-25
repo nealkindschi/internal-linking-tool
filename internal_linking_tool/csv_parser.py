@@ -1,8 +1,13 @@
 """Parse Screaming Frog internal_all.csv exports."""
 
 import math
+import re
 import pandas as pd
 from dataclasses import dataclass, field
+
+
+_NON_PAGE_EXTENSIONS = re.compile(r'\.(js|css|xml|json|png|jpg|jpeg|gif|svg|webp|ico|pdf|zip|gz|woff2?|ttf|eot|mp4|webm)(\?|$)', re.IGNORECASE)
+_NON_PAGE_PATHS = ['cdn-cgi/', 'wp-content/plugins/', 'wp-includes/', 'wp-json/', 'feed/', 'xmlrpc.php']
 
 
 def _safe_str(value):
@@ -25,7 +30,14 @@ class CrawlPage:
 
     @property
     def is_eligible(self) -> bool:
-        return self.status_code == 200
+        if self.status_code != 200:
+            return False
+        if _NON_PAGE_EXTENSIONS.search(self.url):
+            return False
+        for path in _NON_PAGE_PATHS:
+            if path in self.url:
+                return False
+        return True
 
 
 def parse_outlinks(raw):

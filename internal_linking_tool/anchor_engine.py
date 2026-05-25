@@ -84,6 +84,10 @@ class AnchorEngine:
 
         cleaned_kw = _clean_keyword(keyword)
         primary = cleaned_kw if cleaned_kw else keyword[:60].strip()
+        if not primary or len(primary.split()) < 2:
+            words = primary.split()
+            if not words or words[0].lower() in _EXTENDED_STOPWORDS or len(words[0]) <= 3:
+                primary = slug if slug else "related content"
         return (primary, [], "heuristic")
 
     def enrich_opportunities(self, opportunities, queries, target_metadata=None):
@@ -138,6 +142,18 @@ def _trim_title(title: str) -> str:
     return title
 
 
+_EXTENDED_STOPWORDS = {
+    'your', 'what', 'when', 'where', 'across', 'every', 'into', 'more',
+    'some', 'than', 'them', 'then', 'only', 'also', 'over', 'just', 'most',
+    'other', 'after', 'before', 'between', 'during', 'without', 'within',
+    'such', 'each', 'like', 'make', 'made', 'still', 'well', 'back', 'much',
+    'even', 'part', 'same', 'does', 'many', 'being', 'while', 'under', 'around',
+    'again', 'very', 'here', 'both', 'this', 'that', 'with', 'from', 'they',
+    'will', 'have', 'been', 'were', 'their', 'about', 'which', 'there', 'would',
+    'could', 'should', 'these', 'those', 'because', 'through',
+}
+
+
 def _clean_keyword(keyword: str) -> str:
     if not keyword:
         return ""
@@ -153,6 +169,8 @@ def _clean_keyword(keyword: str) -> str:
         kw = re.sub(pattern, "", kw)
     kw = re.sub(r"\?", "", kw)
     kw = re.sub(r"\s+", " ", kw).strip()
+    if len(kw.split()) == 1 and kw in _EXTENDED_STOPWORDS:
+        return ""
     return kw
 
 

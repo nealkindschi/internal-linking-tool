@@ -32,6 +32,8 @@ def _normalize_path(path):
 
 
 def score_opportunity(link_authority, organic_clicks):
+    if organic_clicks == 0:
+        return link_authority
     return link_authority * math.log(organic_clicks + 1)
 
 

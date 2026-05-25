@@ -6,7 +6,7 @@ from pathlib import Path
 from typing import Optional
 
 from fastapi import FastAPI, HTTPException, Query
-from fastapi.responses import HTMLResponse, StreamingResponse
+from fastapi.responses import HTMLResponse, StreamingResponse, Response
 from fastapi.staticfiles import StaticFiles
 
 from internal_linking_tool.config import config
@@ -35,6 +35,10 @@ def create_app():
         if index_path.exists():
             return index_path.read_text()
         return HTMLResponse("<h1>Internal Linking Tool</h1><p>Static files not found.</p>")
+
+    @app.get("/favicon.ico")
+    async def favicon():
+        return Response(status_code=204)
 
     @app.get("/api/health")
     async def health():

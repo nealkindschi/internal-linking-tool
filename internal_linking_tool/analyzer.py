@@ -153,6 +153,11 @@ class Analyzer:
                 "total_anchor_options": sum(o.get("match_count", 0) for o in enriched),
                 "pages_scanned": len(fetched),
                 "gsc_keywords": len(queries),
+                "target_title": target_metadata.title,
+                "target_h1": target_metadata.h1,
+                "keywords_list": [kw["keyword"] for kw in build_impression_weighted_keywords(queries)][:20],
+                "avg_link_authority": round(sum(p.link_authority for p in pages if p.is_eligible) / max(1, len([p for p in pages if p.is_eligible])), 1),
+                "gsc_connected": self.gsc_client.is_authenticated if self.gsc_client else False,
                 "page": 1,
                 "per_page": 100,
             },
@@ -165,13 +170,23 @@ def _extract_keywords_from_text(text):
     import re
     from collections import Counter
     words = re.findall(r'\b[a-zA-Z]{4,}\b', text.lower())
-    stopwords = {'this', 'that', 'with', 'from', 'they', 'will', 'have', 'been', 'were', 'their', 'about', 'which', 'there', 'would', 'could', 'should', 'these', 'those', 'because', 'through'}
+    stopwords = {
+        'this', 'that', 'with', 'from', 'they', 'will', 'have', 'been',
+        'were', 'their', 'about', 'which', 'there', 'would', 'could', 'should',
+        'these', 'those', 'because', 'through', 'your', 'what', 'when', 'where',
+        'across', 'every', 'into', 'more', 'some', 'than', 'them', 'then', 'only',
+        'also', 'over', 'just', 'most', 'other', 'after', 'before', 'between',
+        'during', 'without', 'within', 'such', 'each', 'like', 'make', 'made',
+        'still', 'well', 'back', 'much', 'even', 'part', 'same', 'does', 'many',
+        'being', 'while', 'under', 'around', 'again', 'very', 'here', 'both',
+    }
     filtered = [w for w in words if w not in stopwords]
     bigrams = [' '.join(filtered[i:i+2]) for i in range(len(filtered)-1)]
-    all_terms = filtered + bigrams
+    trigrams = [' '.join(filtered[i:i+3]) for i in range(len(filtered)-2)]
+    all_terms = filtered + bigrams + trigrams
     counts = Counter(all_terms)
-    top = [kw for kw, _ in counts.most_common(30)]
-    return top[:20]
+    top = [kw for kw, _ in counts.most_common(50)]
+    return [kw for kw in top if len(kw.split()) >= 2][:20]
 
 
 async def run_analysis(target_url, csv_path, outlinks_csv=None, stream_id=None):

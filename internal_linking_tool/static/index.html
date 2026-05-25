@@ -61,12 +61,21 @@ tr:hover{background:#f9fafb;cursor:pointer}
 
 <div id="rd" class="res">
   <div class="stats">
-    <div class="stat"><div class="sl">Pages</div><div class="sv" id="spg" style="color:#166534">0</div></div>
-    <div class="stat"><div class="sl">Opps</div><div class="sv" id="sop" style="color:#9a3412">0</div></div>
+    <div class="stat"><div class="sl">Pages w/ Opps</div><div class="sv" id="spg" style="color:#166534">0</div></div>
+    <div class="stat"><div class="sl">Anchor Matches</div><div class="sv" id="sop" style="color:#9a3412">0</div></div>
     <div class="stat"><div class="sl">Scanned</div><div class="sv" id="ssc" style="color:#1d4ed8">0</div></div>
     <div class="stat"><div class="sl">Keywords</div><div class="sv" id="skw" style="color:#991b1b">0</div></div>
   </div>
-  <table><thead><tr><th>Page to Link From</th><th style="width:70px;text-align:center">Auth</th><th style="width:70px;text-align:center">Clicks</th><th style="width:50px;text-align:center">#</th><th>Best Anchor</th></tr></thead>
+  <div id="target-info" style="background:#f0f9ff;border:1px solid #bae6fd;border-radius:.5rem;padding:.75rem;margin-bottom:1rem;font-size:.8125rem;display:none">
+    <strong>Target:</strong> <span id="ti-title"></span>
+    <span style="color:#9ca3af;margin:0 .5rem">|</span>
+    <strong>Keywords:</strong> <span id="ti-kw"></span>
+    <span style="color:#9ca3af;margin:0 .5rem">|</span>
+    <strong>GSC:</strong> <span id="ti-gsc"></span>
+    <span style="color:#9ca3af;margin:0 .5rem">|</span>
+    <strong>Method:</strong> <span id="ti-method"></span>
+  </div>
+  <table><thead><tr><th>Page to Link From</th><th style="width:70px;text-align:center" title="Link Authority: Screaming Frog importance score (0-100). 0 = score not available.">Auth ⓘ</th><th style="width:70px;text-align:center">Clicks</th><th style="width:50px;text-align:center">#</th><th>Best Anchor</th></tr></thead>
   <tbody id="tb"></tbody></table>
 </div>
 
@@ -105,6 +114,16 @@ function lr(){
     document.getElementById('sop').textContent=m.total_anchor_options||0;
     document.getElementById('ssc').textContent=m.pages_scanned||0;
     document.getElementById('skw').textContent=m.gsc_keywords||0;
+    var info=document.getElementById('target-info');
+    if(m.target_title||m.target_h1){
+      info.style.display='block';
+      var hasLLM=o.length>0&&(o[0].matches||[]).some(function(x){return x.generation_method==='llm'});
+      document.getElementById('ti-title').textContent=(m.target_title||m.target_h1||'Unknown').substring(0,80);
+      document.getElementById('ti-kw').textContent=(m.keywords_list||[]).slice(0,6).join(', ')+((m.keywords_list||[]).length>6?' +'+(m.keywords_list.length-6)+' more':'');
+      document.getElementById('ti-gsc').textContent=m.gsc_connected?'\u2713 Connected':'✗ Not connected';
+      if((m.avg_link_authority||0)===0)document.getElementById('ti-gsc').insertAdjacentHTML('afterend','<br><span style=\"color:#9a3412;font-size:.75rem\">⚠ Link Authority is 0 for all pages — check Screaming Frog crawl config</span>');
+      document.getElementById('ti-method').textContent=hasLLM?'LLM (DeepSeek)':'Heuristic';
+    }
     var tb=document.getElementById('tb');tb.innerHTML='';
     o.forEach(function(x){
       var ac=x.link_authority>=80?'b-hi':x.link_authority>=50?'b-md':'b-lo';
@@ -118,7 +137,11 @@ function lr(){
       var ac2=(x.matches||[]).map(function(m){
         var gm=m.generation_method==='llm'?' <span style="font-size:.5rem;background:#fbbf24;color:#78350f;padding:0 2px;border-radius:2px">LLM</span>':'';
         var vars=(m.variations||[]).map(function(v){return '<span class="chip cs">'+v+'</span>'}).join('');
-        return '<div style="margin-bottom:.25rem"><span class="chip '+(m.impression_share>=0.3?'cp':'cs')+'">'+(m.anchor_text||m.keyword)+' ('+Math.round((m.impression_share||0)*100)+'%)</span>'+gm+vars+'</div>';
+        var at=(m.anchor_text||m.keyword).replace(/'/g,"\\'");
+        return '<div style="margin-bottom:.25rem;display:flex;align-items:center;gap:.25rem">'+
+          '<span class="chip '+(m.impression_share>=0.3?'cp':'cs')+'">'+(m.anchor_text||m.keyword)+' ('+Math.round((m.impression_share||0)*100)+'%)</span>'+gm+vars+
+          '<button onclick="event.stopPropagation();var t=this;navigator.clipboard.writeText(\''+at+'\');t.textContent=\'\u2713\';setTimeout(function(){t.textContent=\'Copy\'},1000)" style="font-size:.625rem;padding:1px 4px;background:#e5e7eb;border:1px solid #d1d5db;border-radius:3px;cursor:pointer">Copy</button>'+
+        '</div>';
       }).join('');
       tb.innerHTML+='<tr class="ex" id="ex-'+x.source_url.replace(/[^a-zA-Z0-9]/g,'_')+'"><td colspan="5">'+ac2+'<div style="font-size:.6875rem;color:#9ca3af;margin-top:.25rem;font-style:italic">'+(((x.matches||[])[0]||{}).context||'')+'</div></td></tr>';
     });

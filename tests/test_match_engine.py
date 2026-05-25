@@ -50,7 +50,7 @@ class TestScoreOpportunity:
 
     def test_zero_clicks_handled(self):
         score = score_opportunity(50, 0)
-        assert score == 0.0
+        assert score == 50  # falls back to link authority when no click data
 
 
 class TestGroupBySourceUrl:
