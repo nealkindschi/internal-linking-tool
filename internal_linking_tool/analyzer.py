@@ -8,9 +8,11 @@ import pandas as pd
 
 from internal_linking_tool.csv_parser import parse_crawl_csv
 from internal_linking_tool.gsc_client import GscClient, GscQueryResult, fetch_queries_for_url, build_impression_weighted_keywords
-from internal_linking_tool.page_fetcher import PageFetcher
+from internal_linking_tool.page_fetcher import PageFetcher, PageMetadata, extract_page_metadata
 from internal_linking_tool.match_engine import MatchEngine
 from internal_linking_tool.anchor_engine import AnchorEngine
+from internal_linking_tool.llm_client import LlmAnchorClient
+from internal_linking_tool.config import config
 from internal_linking_tool.sse import sse_emitter
 
 
@@ -36,7 +38,19 @@ class Analyzer:
         self.gsc_client = gsc_client or GscClient()
         self.page_fetcher = page_fetcher or PageFetcher()
         self.match_engine = MatchEngine(target_url=target_url)
-        self.anchor_engine = AnchorEngine()
+        self.anchor_engine = AnchorEngine(
+            llm_client=self._init_llm_client(),
+            max_variations=config.llm_max_variations,
+        )
+
+    def _init_llm_client(self):
+        if not config.llm_enabled or not config.llm_api_key:
+            return None
+        return LlmAnchorClient(
+            endpoint=config.llm_endpoint,
+            api_key=config.llm_api_key,
+            model=config.llm_model,
+        )
 
     async def emit_progress(self, stream_id, state):
         await sse_emitter.emit(stream_id, "progress", state.to_dict())
@@ -64,12 +78,18 @@ class Analyzer:
         results = await self.page_fetcher.fetch_batch(urls)
         return {r.url: r for r in results}
 
+    async def fetch_target_metadata(self):
+        fetched = await self.page_fetcher.fetch(self.target_url)
+        if fetched.success:
+            return extract_page_metadata(fetched.raw_html, self.target_url)
+        return PageMetadata()
+
     def match(self, pages, fetched_pages, queries, outlink_map=None):
         keywords = build_impression_weighted_keywords(queries)
         return self.match_engine.find_opportunities(pages, fetched_pages, keywords, outlink_map)
 
-    def enrich(self, opportunities, queries):
-        return self.anchor_engine.enrich_opportunities(opportunities, queries)
+    def enrich(self, opportunities, queries, target_metadata=None):
+        return self.anchor_engine.enrich_opportunities(opportunities, queries, target_metadata)
 
     async def run(self, csv_path, outlinks_csv=None, stream_id=None):
         state = AnalysisState(id=str(uuid.uuid4())[:8])
@@ -93,6 +113,11 @@ class Analyzer:
             except Exception:
                 pass
 
+        state.set_phase("target_fetch", "Analyzing target page...", 20)
+        if stream_id:
+            await self.emit_progress(stream_id, state)
+        target_metadata = await self.fetch_target_metadata()
+
         state.set_phase("csv_parse", "Parsing crawl data...", 30)
         if stream_id:
             await self.emit_progress(stream_id, state)
@@ -114,7 +139,7 @@ class Analyzer:
         state.set_phase("matching", "Generating anchor suggestions...", 90)
         if stream_id:
             await self.emit_progress(stream_id, state)
-        enriched = self.enrich(opportunities, queries)
+        enriched = self.enrich(opportunities, queries, target_metadata)
 
         state.set_phase("complete", f"Found {len(enriched)} opportunities", 100)
         if stream_id:

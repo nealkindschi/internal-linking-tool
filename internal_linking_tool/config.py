@@ -49,6 +49,13 @@ class Config:
     # Matching
     min_link_authority: int = 0
 
+    # LLM (for anchor text generation)
+    llm_enabled: bool = field(default_factory=lambda: os.getenv("LLM_ENABLED", "true").lower() != "false")
+    llm_endpoint: str = field(default_factory=lambda: os.getenv("LLM_ENDPOINT", "https://api.deepseek.com/v1"))
+    llm_model: str = field(default_factory=lambda: os.getenv("LLM_MODEL", "deepseek-chat"))
+    llm_api_key: str = field(default_factory=lambda: os.getenv("DEEPSEEK_API_KEY", ""))
+    llm_max_variations: int = 3
+
     # Cache
     gsc_cache_ttl_days: int = 7
 

@@ -12,16 +12,52 @@ from internal_linking_tool.config import config
 
 
 @dataclass
+class PageMetadata:
+    """Structured metadata extracted from a target page for anchor text generation."""
+    title: str = ""
+    h1: str = ""
+    slug: str = ""
+    description: str = ""
+
+
+@dataclass
 class FetchedPage:
     url: str
     status_code: int = 0
     text: str = ""
+    raw_html: str = ""
     outlinks: list[str] = field(default_factory=list)
     error: Optional[str] = None
 
     @property
     def success(self) -> bool:
         return self.status_code == 200 and self.error is None
+
+
+def extract_page_metadata(html: str, url: str) -> "PageMetadata":
+    if not html:
+        return PageMetadata()
+    soup = BeautifulSoup(html, "html.parser")
+    title = ""
+    if soup.title and soup.title.string:
+        title = soup.title.string.strip()
+    h1_tag = soup.find("h1")
+    h1 = h1_tag.get_text(strip=True) if h1_tag else ""
+    slug = _slug_to_words(url)
+    description = ""
+    meta_desc = soup.find("meta", attrs={"name": "description"})
+    if meta_desc and meta_desc.get("content"):
+        description = str(meta_desc["content"]).strip()
+    return PageMetadata(title=title, h1=h1, slug=slug, description=description)
+
+
+def _slug_to_words(url: str) -> str:
+    from urllib.parse import urlparse
+    path = urlparse(url).path.strip("/")
+    if not path:
+        return ""
+    last_segment = path.split("/")[-1]
+    return last_segment.replace("-", " ").replace("_", " ")
 
 
 def extract_readable_text(html):
@@ -70,6 +106,7 @@ class PageFetcher:
                 return FetchedPage(
                     url=url, status_code=response.status_code,
                     text=extract_readable_text(html),
+                    raw_html=html,
                     outlinks=extract_outlinks(html, base_domain=base_domain))
         except httpx.HTTPStatusError as e:
             return FetchedPage(url=url, status_code=e.response.status_code, error=str(e))

@@ -85,7 +85,6 @@ class MatchEngine:
                         "link_authority": page.link_authority,
                         "organic_clicks_90d": page.gsc_clicks,
                         "keyword": kw_text,
-                        "anchor_text": kw_text,
                         "impression_share": kw.get("impression_share", 0),
                         "context": context,
                     })

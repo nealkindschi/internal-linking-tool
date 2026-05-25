@@ -32,7 +32,9 @@ class AnalysisStatus(BaseModel):
 
 class Match(BaseModel):
     keyword: str
-    anchor_text: str
+    anchor_text: str = ""
+    variations: list[str] = []
+    generation_method: str = "heuristic"
     impression_share: float
     context: str
 

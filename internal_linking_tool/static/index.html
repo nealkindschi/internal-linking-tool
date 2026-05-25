@@ -115,7 +115,11 @@ function lr(){
         '<td style="text-align:center">'+(x.organic_clicks_90d||0)+'</td>'+
         '<td style="text-align:center"><span style="background:#dbeafe;color:#1e40af;padding:2px 6px;border-radius:9999px;font-size:.6875rem;font-weight:700">'+(x.match_count||0)+'</span></td>'+
         '<td style="color:#2563eb">'+(x.best_anchor||'')+'</td></tr>';
-      var ac2=(x.matches||[]).map(function(m){return '<span class="chip '+(m.impression_share>=0.3?'cp':'cs')+'">'+(m.anchor_text||m.keyword)+' ('+Math.round((m.impression_share||0)*100)+'%)</span>'}).join(' ');
+      var ac2=(x.matches||[]).map(function(m){
+        var gm=m.generation_method==='llm'?' <span style="font-size:.5rem;background:#fbbf24;color:#78350f;padding:0 2px;border-radius:2px">LLM</span>':'';
+        var vars=(m.variations||[]).map(function(v){return '<span class="chip cs">'+v+'</span>'}).join('');
+        return '<div style="margin-bottom:.25rem"><span class="chip '+(m.impression_share>=0.3?'cp':'cs')+'">'+(m.anchor_text||m.keyword)+' ('+Math.round((m.impression_share||0)*100)+'%)</span>'+gm+vars+'</div>';
+      }).join('');
       tb.innerHTML+='<tr class="ex" id="ex-'+x.source_url.replace(/[^a-zA-Z0-9]/g,'_')+'"><td colspan="5">'+ac2+'<div style="font-size:.6875rem;color:#9ca3af;margin-top:.25rem;font-style:italic">'+(((x.matches||[])[0]||{}).context||'')+'</div></td></tr>';
     });
   }).catch(function(e){showerr(e.message)});
