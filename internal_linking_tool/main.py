@@ -193,7 +193,7 @@ async def _run_background_analysis(analysis_id, request, app):
             csv_path=export["internal_csv"],
             outlinks_csv=export.get("outlinks_csv"),
             stream_id=analysis_id,
-            markdown_csv=request.markdown_csv,
+            markdown_csv=request.markdown_csv or export.get("markdown_csv"),
         )
         app.state.analyses[analysis_id] = result
     except Exception as e:
