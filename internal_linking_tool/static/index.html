@@ -47,10 +47,14 @@ tr:hover{background:#f9fafb;cursor:pointer}
 <div class="card">
   <label for="tu">Target URL</label>
   <input type="url" id="tu" placeholder="https://aioutlooks.com/blog/some-page/">
-  <label for="cs">Screaming Frog Crawl</label>
+  <label for="cs">Screaming Frog Crawl (auto-exports page data + content)</label>
   <select id="cs"><option value="">Loading...</option></select>
+  <div style="font-size:.75rem;color:#6b7280;margin-bottom:1rem;line-height:1.5">
+    <strong>What this needs:</strong> A completed Screaming Frog crawl with JavaScript rendering enabled. The tool auto-exports 3 tabs: <em>Internal:All</em> (page data), <em>Links:All Outlinks</em> (existing links), and <em>Custom JavaScript:All</em> (page content as Markdown). No file uploads required — everything is pulled from your saved crawl.<br><br>
+    <strong>To set up Markdown export:</strong> Add the <a href="https://www.screamingfrog.co.uk/blog/generate-markdown-at-scale/" target="_blank" style="color:#2563eb">Readability.js + Turndown snippet</a> to SF's Custom JavaScript config. Without it, the tool falls back to fetching pages via HTTP.
+  </div>
   <div style="display:flex;gap:.5rem;align-items:center">
-    <button id="ab" onclick="go()" disabled>Analyze</button>
+    <button id="ab" onclick="go()" disabled>Find Link Opportunities</button>
     <span id="sp" style="display:none"><span class="spin"></span> Working...</span>
   </div>
 </div>
