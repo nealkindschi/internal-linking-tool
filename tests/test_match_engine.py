@@ -2,7 +2,8 @@
 
 import pytest
 from internal_linking_tool.match_engine import (
-    MatchEngine, keyword_in_text, is_linked, score_opportunity, group_by_source_url,
+    MatchEngine, keyword_in_text, is_linked, is_content_linked,
+    score_opportunity, group_by_source_url,
 )
 from internal_linking_tool.csv_parser import CrawlPage
 from internal_linking_tool.page_fetcher import FetchedPage
@@ -40,6 +41,27 @@ class TestIsLinked:
     def test_handles_trailing_slash_variation(self):
         outlinks = ["/blog/target-page/"]
         assert is_linked("/blog/target-page", outlinks) is True
+
+
+class TestIsContentLinked:
+    def test_excludes_when_found(self):
+        content_dests = {"/about/", "/blog/target-page/", "/contact/"}
+        assert is_content_linked("/blog/target-page/", content_dests) is True
+
+    def test_allows_when_not_found(self):
+        content_dests = {"/about/", "/contact/"}
+        assert is_content_linked("/blog/target-page/", content_dests) is False
+
+    def test_handles_trailing_slash_variation(self):
+        content_dests = {"/blog/target-page/"}
+        assert is_content_linked("/blog/target-page", content_dests) is True
+
+    def test_handles_full_urls(self):
+        content_dests = {"https://example.com/blog/target-page/"}
+        assert is_content_linked("/blog/target-page/", content_dests) is True
+
+    def test_empty_set_returns_false(self):
+        assert is_content_linked("/target/", set()) is False
 
 
 class TestScoreOpportunity:
@@ -111,3 +133,62 @@ class TestMatchEngine:
         engine = MatchEngine(target_url="/target/")
         results = engine.find_opportunities(pages, fetched, [])
         assert results == []
+
+    def test_find_opportunities_content_only_exclusion(self):
+        pages = [
+            CrawlPage("https://example.com/blog/nav-link/", 200, 80, 10, [], 0),
+            CrawlPage("https://example.com/blog/content-link/", 200, 85, 20, [], 0),
+        ]
+        fetched = {
+            "https://example.com/blog/nav-link/": FetchedPage(
+                "https://example.com/blog/nav-link/", 200,
+                "renewable energy is important for the future."),
+            "https://example.com/blog/content-link/": FetchedPage(
+                "https://example.com/blog/content-link/", 200,
+                "sustainable energy powers our world."),
+        }
+        keywords = [
+            {"keyword": "renewable energy", "impression_share": 0.6},
+            {"keyword": "sustainable energy", "impression_share": 0.4},
+        ]
+        outlink_map = {
+            "https://example.com/blog/nav-link/": {
+                "all": {"/blog/target-page/"},
+                "content": {},
+                "content_dests": set(),
+            },
+            "https://example.com/blog/content-link/": {
+                "all": {"/blog/target-page/"},
+                "content": {"/blog/target-page/": "target page"},
+                "content_dests": {"/blog/target-page/"},
+            },
+        }
+        engine = MatchEngine(target_url="/blog/target-page/")
+        results = engine.find_opportunities(pages, fetched, keywords, outlink_map)
+        assert len(results) == 1
+        assert results[0]["source_url"] == "https://example.com/blog/nav-link/"
+
+    def test_find_opportunities_legacy_fallback(self):
+        pages = [
+            CrawlPage("https://example.com/blog/linked/", 200, 80, 10, [], 0),
+            CrawlPage("https://example.com/blog/unlinked/", 200, 85, 20, [], 0),
+        ]
+        fetched = {
+            "https://example.com/blog/linked/": FetchedPage(
+                "https://example.com/blog/linked/", 200,
+                "renewable energy is important."),
+            "https://example.com/blog/unlinked/": FetchedPage(
+                "https://example.com/blog/unlinked/", 200,
+                "sustainable energy is growing."),
+        }
+        keywords = [
+            {"keyword": "renewable energy", "impression_share": 0.6},
+            {"keyword": "sustainable energy", "impression_share": 0.4},
+        ]
+        outlink_map = {
+            "https://example.com/blog/linked/": {"/blog/target-page/"},
+        }
+        engine = MatchEngine(target_url="/blog/target-page/")
+        results = engine.find_opportunities(pages, fetched, keywords, outlink_map)
+        assert len(results) == 1
+        assert results[0]["source_url"] == "https://example.com/blog/unlinked/"

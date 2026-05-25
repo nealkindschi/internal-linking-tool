@@ -66,15 +66,25 @@ class Analyzer:
 
     def parse_outlinks(self, outlinks_csv):
         if not outlinks_csv:
-            return {}
+            return {"sources": {}, "target_anchors": {}}
         df = pd.read_csv(outlinks_csv, dtype=str, encoding="utf-8-sig")
-        link_map = {}
+        sources = {}
+        target_anchors = {}
         for _, row in df.iterrows():
             src = str(row.get("Source", "")).strip()
             dst = str(row.get("Destination", "")).strip()
-            if src and dst:
-                link_map.setdefault(src, set()).add(dst)
-        return link_map
+            if not src or not dst:
+                continue
+            entry = sources.setdefault(src, {"all": set(), "content": {}, "content_dests": set()})
+            entry["all"].add(dst)
+            position = str(row.get("Link Position", "")).strip()
+            follow = str(row.get("Follow", "")).strip().lower()
+            anchor = str(row.get("Anchor", "")).strip()
+            if position == "Content" and follow == "true" and anchor:
+                entry["content"][dst] = anchor
+                entry["content_dests"].add(dst)
+                target_anchors.setdefault(dst, set()).add(anchor)
+        return {"sources": sources, "target_anchors": target_anchors}
 
     async def fetch_source_pages(self, pages):
         urls = [p.url for p in pages if p.is_eligible]
@@ -87,14 +97,26 @@ class Analyzer:
             return extract_page_metadata(fetched.raw_html, self.target_url)
         return PageMetadata()
 
-    def match(self, pages, fetched_pages, queries, outlink_map=None):
+    def parse_markdown_csv(self, markdown_csv_path):
+        if not markdown_csv_path:
+            return {}
+        df = pd.read_csv(markdown_csv_path, dtype=str, encoding="utf-8-sig")
+        md_map = {}
+        for _, row in df.iterrows():
+            url = str(row.get("Address", "")).strip()
+            md = str(row.get("Page Markdown 1", "")).strip()
+            if url and md and md != "nan":
+                md_map[url] = md
+        return md_map
+
+    def match(self, pages, fetched_pages, queries, outlink_map=None, markdown_map=None):
         keywords = build_impression_weighted_keywords(queries)
-        return self.match_engine.find_opportunities(pages, fetched_pages, keywords, outlink_map)
+        return self.match_engine.find_opportunities(pages, fetched_pages, keywords, outlink_map, markdown_map)
 
-    def enrich(self, opportunities, queries, target_metadata=None):
-        return self.anchor_engine.enrich_opportunities(opportunities, queries, target_metadata)
+    def enrich(self, opportunities, queries, target_metadata=None, existing_anchors=None, target_markdown=""):
+        return self.anchor_engine.enrich_opportunities(opportunities, queries, target_metadata, existing_anchors, target_markdown)
 
-    async def run(self, csv_path, outlinks_csv=None, stream_id=None):
+    async def run(self, csv_path, outlinks_csv=None, stream_id=None, markdown_csv=None):
         state = AnalysisState(id=str(uuid.uuid4())[:8])
 
         state.set_phase("gsc_fetch", "Fetching Google Search Console data...", 10)
@@ -125,7 +147,9 @@ class Analyzer:
         if stream_id:
             await self.emit_progress(stream_id, state)
         pages = self.parse_crawl(csv_path)
-        outlink_map = self.parse_outlinks(outlinks_csv)
+        outlink_data = self.parse_outlinks(outlinks_csv)
+        outlink_map = outlink_data.get("sources", {})
+        all_target_anchors = outlink_data.get("target_anchors", {})
         eligible = [p for p in pages if p.is_eligible]
 
         state.set_phase("page_scan", f"Scanning {len(eligible)} pages...", 40)
@@ -137,12 +161,16 @@ class Analyzer:
         state.set_phase("matching", "Finding opportunities...", 80)
         if stream_id:
             await self.emit_progress(stream_id, state)
-        opportunities = self.match(pages, fetched, queries, outlink_map)
+        markdown_map = self.parse_markdown_csv(markdown_csv)
+
+        opportunities = self.match(pages, fetched, queries, outlink_map, markdown_map)
 
         state.set_phase("matching", "Generating anchor suggestions...", 90)
         if stream_id:
             await self.emit_progress(stream_id, state)
-        enriched = self.enrich(opportunities, queries, target_metadata)
+        existing_anchors = all_target_anchors.get(self.target_url, set())
+        target_md = markdown_map.get(self.target_url, "") if markdown_map else ""
+        enriched = self.enrich(opportunities, queries, target_metadata, existing_anchors, target_md)
 
         state.set_phase("complete", f"Found {len(enriched)} opportunities", 100)
         if stream_id:
@@ -192,6 +220,6 @@ def _extract_keywords_from_text(text):
     return [kw for kw in top if len(kw.split()) >= 2][:20]
 
 
-async def run_analysis(target_url, csv_path, outlinks_csv=None, stream_id=None):
+async def run_analysis(target_url, csv_path, outlinks_csv=None, stream_id=None, markdown_csv=None):
     analyzer = Analyzer(target_url=target_url)
-    return await analyzer.run(csv_path=csv_path, outlinks_csv=outlinks_csv, stream_id=stream_id)
+    return await analyzer.run(csv_path=csv_path, outlinks_csv=outlinks_csv, stream_id=stream_id, markdown_csv=markdown_csv)

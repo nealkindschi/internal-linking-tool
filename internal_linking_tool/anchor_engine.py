@@ -21,13 +21,15 @@ class AnchorEngine:
         target_metadata: PageMetadata,
         keyword: str,
         source_context: str,
+        existing_anchors: Optional[set] = None,
+        target_markdown: str = "",
     ) -> tuple[str, list[str], str]:
-        primary, variations, method = self._try_llm(target_metadata, keyword, source_context)
+        primary, variations, method = self._try_llm(target_metadata, keyword, source_context, existing_anchors, target_markdown)
         if primary:
             return (primary, variations, method)
         return self._generate_via_heuristic(target_metadata, keyword)
 
-    def _try_llm(self, target_metadata, keyword, source_context):
+    def _try_llm(self, target_metadata, keyword, source_context, existing_anchors=None, target_markdown=""):
         if not self.llm_client or not self.llm_client.is_available():
             return ("", [], "")
         target_dict = {
@@ -35,6 +37,8 @@ class AnchorEngine:
             "h1": target_metadata.h1,
             "slug": target_metadata.slug,
             "description": target_metadata.description,
+            "markdown": (target_markdown or "")[:1000],
+            "existing_anchors": list(existing_anchors) if existing_anchors else [],
         }
         anchors = self.llm_client.generate_anchors(
             target_context=target_dict,
@@ -90,7 +94,7 @@ class AnchorEngine:
                 primary = slug if slug else "related content"
         return (primary, [], "heuristic")
 
-    def enrich_opportunities(self, opportunities, queries, target_metadata=None):
+    def enrich_opportunities(self, opportunities, queries, target_metadata=None, existing_anchors=None, target_markdown=""):
         if target_metadata is None:
             target_metadata = PageMetadata()
         if not opportunities:
@@ -100,7 +104,7 @@ class AnchorEngine:
                 kw = match.get("keyword", "")
                 ctx = match.get("context", "")
                 anchor, variations, method = self.generate_anchors(
-                    target_metadata, kw, ctx
+                    target_metadata, kw, ctx, existing_anchors, target_markdown
                 )
                 match["anchor_text"] = anchor
                 match["variations"] = variations

@@ -26,6 +26,16 @@ def is_linked(target_url_path, outlinks):
     return False
 
 
+def is_content_linked(target_url_path, content_dests):
+    target_normalized = _normalize_path(target_url_path)
+    for dest in content_dests:
+        parsed = urlparse(dest)
+        path_to_check = parsed.path if parsed.netloc else dest
+        if _normalize_path(path_to_check) == target_normalized:
+            return True
+    return False
+
+
 def _normalize_path(path):
     path = path.strip().rstrip("/").lower()
     return path or "/"
@@ -61,27 +71,37 @@ class MatchEngine:
         self.target_url = target_url
         self.target_path = _normalize_path(urlparse(target_url).path)
 
-    def find_opportunities(self, pages, fetched_pages, keywords, outlink_map=None):
+    def find_opportunities(self, pages, fetched_pages, keywords, outlink_map=None, markdown_map=None):
         if not keywords:
             return []
         outlink_map = outlink_map or {}
+        markdown_map = markdown_map or {}
         matches = []
         for page in pages:
             if not page.is_eligible:
                 continue
-            outlinks = outlink_map.get(page.url, page.outlinks)
-            if is_linked(self.target_path, outlinks):
-                continue
-            fetched = fetched_pages.get(page.url)
-            if not fetched or not fetched.success:
-                continue
-            page_text = fetched.text
+            page_data = outlink_map.get(page.url)
+            if page_data and isinstance(page_data, dict):
+                content_dests = page_data.get("content_dests", set())
+                if is_content_linked(self.target_path, content_dests):
+                    continue
+            else:
+                outlinks = outlink_map.get(page.url, page.outlinks)
+                if is_linked(self.target_path, outlinks):
+                    continue
+            page_text = markdown_map.get(page.url)
+            if not page_text:
+                fetched = fetched_pages.get(page.url)
+                if not fetched or not fetched.success:
+                    continue
+                page_text = fetched.text
             if not page_text:
                 continue
+            is_md = bool(markdown_map.get(page.url))
             for kw in keywords:
                 kw_text = kw["keyword"]
                 if keyword_in_text(kw_text, page_text):
-                    context = _extract_context(kw_text, page_text)
+                    context = _extract_context_markdown(kw_text, page_text) if is_md else _extract_context(kw_text, page_text)
                     matches.append({
                         "source_url": page.url,
                         "link_authority": page.link_authority,
@@ -106,3 +126,11 @@ def _extract_context(keyword, text, window=80):
     if end < len(text):
         context = context + "..."
     return context
+
+
+def _extract_context_markdown(keyword: str, md_text: str) -> str:
+    blocks = re.split(r'\n\n|\n(?:#{1,6}\s)', md_text)
+    for block in blocks:
+        if keyword.lower() in block.lower():
+            return block.strip()[:500]
+    return _extract_context(keyword, md_text)

@@ -1,0 +1,15 @@
+Address,Content Type,Status Code,Status,Page Markdown 1
+https://example.com/blog/solar/,text/html,200,OK,"---
+title: Solar Power Guide
+author: John Doe
+excerpt: Complete guide to solar energy.
+---
+
+Solar energy is a renewable energy source that converts sunlight into electricity. This guide explains how solar panels work and why renewable energy matters for our future."
+https://example.com/blog/wind/,text/html,200,OK,"---
+title: Wind Power Basics
+author: Jane Smith
+excerpt: Introduction to wind energy.
+---
+
+Wind power is a key part of sustainable energy. Modern turbines convert wind into clean electricity. Learn why sustainable energy is essential for climate goals."

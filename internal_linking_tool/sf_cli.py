@@ -110,7 +110,14 @@ class SfCliManager:
             atexit.register(lambda d=export_dir: shutil.rmtree(d, ignore_errors=True))
         self._run([
             "--load-crawl", crawl_id,
-            "--export-tabs", "Internal:HTML",
+            "--export-tabs", "Internal:All",
+            "--output-folder", export_dir,
+            "--export-format", "csv",
+            "--overwrite",
+        ], timeout=600)
+        self._run([
+            "--load-crawl", crawl_id,
+            "--export-tabs", "Custom JavaScript:All",
             "--output-folder", export_dir,
             "--export-format", "csv",
             "--overwrite",
@@ -124,11 +131,13 @@ class SfCliManager:
         ], timeout=600)
         export_path = Path(export_dir)
         internal = list(export_path.glob("**/internal_all.csv"))
+        markdown = list(export_path.glob("**/custom_javascript*.csv"))
         outlinks = list(export_path.glob("**/all_outlinks.csv"))
         if not internal:
             internal = list(export_path.glob("**/*.csv"))
         return {
             "internal_csv": str(internal[0]) if internal else None,
             "outlinks_csv": str(outlinks[0]) if outlinks else None,
+            "markdown_csv": str(markdown[0]) if markdown else None,
             "export_dir": export_dir,
         }

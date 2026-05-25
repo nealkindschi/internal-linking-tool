@@ -21,6 +21,7 @@ class CrawlStatus(BaseModel):
 class AnalysisRequest(BaseModel):
     target_url: str
     crawl_id: Optional[str] = None
+    markdown_csv: Optional[str] = None
 
 
 class AnalysisStatus(BaseModel):

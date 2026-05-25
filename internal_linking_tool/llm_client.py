@@ -47,8 +47,10 @@ class LlmAnchorClient:
         title = target_context.get("title", "")
         h1 = target_context.get("h1", "")
         slug = target_context.get("slug", "")
+        markdown = target_context.get("markdown", "")
+        existing_anchors = target_context.get("existing_anchors", [])
 
-        prompt = self._build_prompt(title, h1, slug, keyword, source_context, max_variations)
+        prompt = self._build_prompt(title, h1, slug, keyword, source_context, max_variations, existing_anchors, markdown)
 
         try:
             from openai import OpenAI
@@ -63,7 +65,10 @@ class LlmAnchorClient:
                 temperature=0.7,
                 response_format={"type": "json_object"},
             )
-            content = response.choices[0].message.content.strip()
+            content = response.choices[0].message.content
+            if not content:
+                return None
+            content = content.strip()
             anchors = self._parse_response(content)
             if anchors:
                 return anchors[:max_variations]
@@ -84,23 +89,36 @@ class LlmAnchorClient:
                 temperature=0.7,
                 response_format={"type": "json_object"},
             )
-            content = response.choices[0].message.content.strip()
+            content = response.choices[0].message.content
+            if not content:
+                return None
+            content = content.strip()
             return self._parse_response(content)
         except Exception:
             self._logger.warning("LLM retry also failed", exc_info=True)
             return None
 
     @staticmethod
-    def _build_prompt(title, h1, slug, keyword, source_context, max_variations):
+    def _build_prompt(title, h1, slug, keyword, source_context, max_variations, existing_anchors=None, markdown=""):
+        existing_section = ""
+        if existing_anchors:
+            anchors_list = "\n".join(f'  - "{a}"' for a in existing_anchors)
+            existing_section = f"""
+EXISTING ANCHORS (already used on the site — AVOID these):
+{anchors_list}
+
+"""
+        content_preview = ""
+        if markdown:
+            content_preview = f"""  Content preview: "{markdown}"
+"""
         return f"""TARGET PAGE:
   Title: "{title}"
   Heading: "{h1}"
   Topic: "{slug}"
-
-SOURCE PAGE CONTEXT:
+{content_preview}SOURCE PAGE CONTEXT:
   A page mentions "{keyword}" in this sentence: "{source_context}"
-
-Generate {max_variations} natural, descriptive anchor text variations for a link pointing to the target page.
+{existing_section}Generate {max_variations} natural, descriptive anchor text variations for a link pointing to the target page.
 
 RULES (CRITICAL):
 - Must accurately describe what the reader will find on the target page
@@ -110,6 +128,7 @@ RULES (CRITICAL):
 - When possible, incorporate the keyword naturally
 - Each variation should be distinct from the others
 - Anchor text should feel like natural prose that fits the source sentence context
+- Do NOT repeat any anchor text already in use
 
 Return ONLY valid JSON: {{"anchors": ["anchor1", "anchor2"]}}"""
 

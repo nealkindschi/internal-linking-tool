@@ -2,6 +2,7 @@
 
 import asyncio
 import logging
+import threading
 import uuid
 from pathlib import Path
 from typing import Optional
@@ -147,11 +148,38 @@ def create_app():
 
     @app.get("/api/gsc/auth")
     async def gsc_auth():
-        try:
-            success = app.state.gsc_client.authenticate()
-            return {"authenticated": success}
-        except Exception as e:
-            raise HTTPException(status_code=500, detail=str(e))
+        """Start GSC OAuth flow in background thread. Returns immediately."""
+        status = {"authenticated": False, "status": "pending", "message": ""}
+        auth_id = str(uuid.uuid4())[:8]
+        app.state._gsc_auth_status = status
+
+        def _auth():
+            try:
+                success = app.state.gsc_client.authenticate()
+                status["authenticated"] = success
+                status["status"] = "complete" if success else "failed"
+                status["message"] = "Connected" if success else "Authentication failed"
+            except Exception as e:
+                status["status"] = "error"
+                status["message"] = str(e)
+
+        thread = threading.Thread(target=_auth, daemon=True)
+        thread.start()
+        status["status"] = "waiting"
+        status["message"] = "Check your browser for the Google consent screen. Then check /api/gsc/status."
+        return {"authenticated": False, "status": "waiting", "auth_id": auth_id,
+                "message": "Check your browser for the Google consent screen"}
+
+    @app.get("/api/gsc/status")
+    async def gsc_auth_status():
+        """Check current GSC authentication status."""
+        auth_status = getattr(app.state, "_gsc_auth_status", {})
+        is_auth = app.state.gsc_client.is_authenticated
+        return {
+            "authenticated": is_auth,
+            "status": auth_status.get("status", "unknown"),
+            "message": auth_status.get("message", ""),
+        }
 
     return app
 
@@ -165,6 +193,7 @@ async def _run_background_analysis(analysis_id, request, app):
             csv_path=export["internal_csv"],
             outlinks_csv=export.get("outlinks_csv"),
             stream_id=analysis_id,
+            markdown_csv=request.markdown_csv,
         )
         app.state.analyses[analysis_id] = result
     except Exception as e:
